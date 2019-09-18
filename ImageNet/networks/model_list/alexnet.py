@@ -68,19 +68,23 @@ class AlexNet(nn.Module):
             # nn.BatchNorm2d(96, eps=1e-4, momentum=0.1, affine=True),
             nn.ReLU(inplace=True),
             nn.AvgPool2d(kernel_size=3, stride=2),
-            BinConv2d(96, 256, kernel_size=5, stride=1, padding=2, groups=1, dropout_ratio=.1),
+
+            BinConv2d(96, 256, kernel_size=5, stride=1, padding=2, groups=1, dropout=.1), # dropout compensate the batch norm
             nn.AvgPool2d(kernel_size=3, stride=2),
-            BinConv2d(256, 384, kernel_size=3, stride=1, padding=1),
-            BinConv2d(384, 384, kernel_size=3, stride=1, padding=1, groups=1),
-            BinConv2d(384, 256, kernel_size=3, stride=1, padding=1, groups=1),
+
+            BinConv2d(256, 384, kernel_size=3, stride=1, padding=1, dropout=.1),
+
+            BinConv2d(384, 384, kernel_size=3, stride=1, padding=1, groups=1, dropout=.1),
+
+            BinConv2d(384, 256, kernel_size=3, stride=1, padding=1, groups=1, dropout=.1),
+
             nn.AvgPool2d(kernel_size=3, stride=2),
         )
         self.classifier = nn.Sequential(
-            BinConv2d(256 * 6 * 6, 4096, Linear=True),
+            BinConv2d(256 * 6 * 6, 4096, Linear=True, dropout=0.1),
             BinConv2d(4096, 4096, dropout=0.5, Linear=True),
             # nn.BatchNorm1d(4096, eps=1e-3, momentum=0.1, affine=True),
-            nn.AvgPool1d
-            nn.Dropout(),
+            nn.Dropout(0.1),
             nn.Linear(4096, num_classes),
         )
 
