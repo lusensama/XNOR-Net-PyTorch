@@ -190,7 +190,7 @@ def main():
                 batch_size=args.batch_size, shuffle=False,
                 num_workers=args.workers, pin_memory=True)
 
-    print model
+    print (model)
 
     # define the binarization operator
     global bin_op
@@ -236,7 +236,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        target = target.cuda(async=True)
+        target = target.cuda(non_blocking=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 
@@ -291,7 +291,7 @@ def validate(val_loader, model, criterion):
     end = time.time()
     bin_op.binarization()
     for i, (input, target) in enumerate(val_loader):
-        target = target.cuda(async=True)
+        target = target.cuda(non_blocking=True)
         with torch.no_grad():
             input_var = torch.autograd.Variable(input)
             target_var = torch.autograd.Variable(target)
@@ -353,7 +353,7 @@ class AverageMeter(object):
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     lr = args.lr * (0.1 ** (epoch // 30))
-    print 'Learning rate:', lr
+    print ('Learning rate:', lr)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
