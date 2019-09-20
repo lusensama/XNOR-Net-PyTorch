@@ -1,1 +1,5 @@
 *.pyc
+ImageNet/networks/runs
+CIFAR_10/data
+ImageNet/cifar
+ImageNet/networks/datacifa
