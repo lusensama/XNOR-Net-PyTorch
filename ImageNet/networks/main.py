@@ -11,10 +11,12 @@ import torch.distributed as dist
 import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
-# import torchvision.transforms as transforms
+import torchvision
+import torchvision.transforms as transforms
 # import torchvision.datasets as datasets
 import model_list
 import util
+
 
 # set the seed
 torch.manual_seed(1)
@@ -30,6 +32,8 @@ parser.add_argument('--data', metavar='DATA_PATH', default='./data/',
                     help='path to imagenet data (default: ./data/)')
 parser.add_argument('--caffe-data',  default=False, action='store_true',
                     help='whether use caffe-data')
+parser.add_argument('--cifar',  default=True, action='store_true',
+                    help='use cifar data by default')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 8)')
 parser.add_argument('--epochs', default=100, type=int, metavar='N',
@@ -155,6 +159,27 @@ def main():
             Train=False),
             batch_size=args.batch_size, shuffle=False,
             num_workers=args.workers, pin_memory=True)
+    elif args.cifar:
+        import torchvision.transforms as transforms
+        import torchvision
+        transform = transforms.Compose(
+            [transforms.ToTensor(),
+             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+        trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
+                                                download=True, transform=transform)
+        train_loader = torch.utils.data.DataLoader(trainset, batch_size=128,
+                                                  shuffle=True, num_workers=2)
+
+        testset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                               download=True, transform=transform)
+        val_loader = torch.utils.data.DataLoader(testset, batch_size=100,
+                                                 shuffle=False, num_workers=2)
+
+        classes = ('plane', 'car', 'bird', 'cat',
+                   'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+
+
     else:
         print('==> Using Pytorch Dataset')
         import torchvision
@@ -190,7 +215,7 @@ def main():
                 batch_size=args.batch_size, shuffle=False,
                 num_workers=args.workers, pin_memory=True)
 
-    print (model)
+    # print (model)
 
     # define the binarization operator
     global bin_op

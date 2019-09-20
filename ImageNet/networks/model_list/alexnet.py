@@ -47,7 +47,7 @@ class BinConv2d(nn.Module): # change the name of BinConv2d
         self.relu = nn.ReLU(inplace=True)
     
     def forward(self, x):
-        x = self.bn(x)
+        # x = self.bn(x)
         x = BinActive()(x)
         if self.dropout_ratio!=0:
             x = self.dropout(x)
@@ -72,7 +72,7 @@ class AlexNet(nn.Module):
             BinConv2d(96, 256, kernel_size=5, stride=1, padding=2, groups=1, dropout=.1), # dropout compensate the batch norm
             nn.AvgPool2d(kernel_size=3, stride=2),
 
-            BinConv2d(256, 384, kernel_size=3, stride=1, padding=1, dropout=.1),
+            BinConv2d(256, 384, kernel_size=3, stride=1, padding=1),
 
             BinConv2d(384, 384, kernel_size=3, stride=1, padding=1, groups=1, dropout=.1),
 
