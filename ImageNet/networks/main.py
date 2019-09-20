@@ -11,13 +11,14 @@ import torch.distributed as dist
 import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
+from torch.utils.tensorboard import SummaryWriter
 import torchvision
 import torchvision.transforms as transforms
 # import torchvision.datasets as datasets
 import model_list
 import util
-
-
+import matplotlib as plt
+import numpy as np
 # set the seed
 torch.manual_seed(1)
 torch.cuda.manual_seed(1)
@@ -36,7 +37,7 @@ parser.add_argument('--cifar',  default=True, action='store_true',
                     help='use cifar data by default')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 8)')
-parser.add_argument('--epochs', default=100, type=int, metavar='N',
+parser.add_argument('--epochs', default=50, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -68,7 +69,9 @@ best_prec1 = 0
 # define global bin_op
 bin_op = None
 
+
 def main():
+
     global args, best_prec1
     args = parser.parse_args()
 
@@ -252,7 +255,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-
+    writer = SummaryWriter('runs/loss_graph')
+    loss_record = 0.0
     # switch to train mode
     model.train()
 
@@ -271,7 +275,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # compute output
         output = model(input_var)
         loss = criterion(output, target_var)
-
+        loss_record += loss.item()
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
         losses.update(loss.data.item(), input.size(0))
@@ -293,6 +297,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
         end = time.time()
 
         if i % args.print_freq == 0:
+            writer.add_scalar('training loss',
+                              loss_record/10,
+                            epoch * len(train_loader) + i)
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
@@ -301,6 +308,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                    epoch, i, len(train_loader), batch_time=batch_time,
                    data_time=data_time, loss=losses, top1=top1, top5=top5))
+            loss_record=0.0
         gc.collect()
 
 
