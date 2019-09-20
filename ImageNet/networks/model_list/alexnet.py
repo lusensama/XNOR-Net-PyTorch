@@ -102,7 +102,7 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.AvgPool2d(kernel_size=2),
 
-            BinConv2d(64, 192, kernel_size=3, stride=1, padding=1, dropout=.1), # dropout compensate the batch norm
+            BinConv2d(64, 192, kernel_size=3, stride=1, padding=1), # dropout compensate the batch norm
             nn.AvgPool2d(kernel_size=2),
 
             BinConv2d(192, 384, kernel_size=3, stride=1, padding=1),
