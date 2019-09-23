@@ -300,6 +300,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
             writer.add_scalar('training loss',
                               loss_record/10,
                             epoch * len(train_loader) + i)
+
+
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
@@ -310,6 +312,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
                    data_time=data_time, loss=losses, top1=top1, top5=top5))
             loss_record=0.0
         gc.collect()
+    writer.add_scalar('top1 accuracy', top1.val, epoch)
+    writer.add_scalar('top5 accuracy', top5.val, epoch)
 
 
 def validate(val_loader, model, criterion):
