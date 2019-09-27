@@ -25,7 +25,7 @@ torch.cuda.manual_seed(1)
 
 import sys
 import gc
-
+#--evaluate --pretrained
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('--arch', '-a', metavar='ARCH', default='alexnet',
                     help='model architecture (default: alexnet)')
@@ -37,7 +37,7 @@ parser.add_argument('--cifar',  default=True, action='store_true',
                     help='use cifar data by default')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 8)')
-parser.add_argument('--epochs', default=50, type=int, metavar='N',
+parser.add_argument('--epochs', default=3, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -317,6 +317,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
 
 def validate(val_loader, model, criterion):
+    print("start validation")
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
