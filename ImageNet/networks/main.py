@@ -227,7 +227,7 @@ def main():
     if args.evaluate:
         validate(val_loader, model, criterion)
         return
-
+    val_prec_list = []
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(optimizer, epoch)
 
@@ -236,7 +236,7 @@ def main():
 
         # evaluate on validation set
         prec1 = validate(val_loader, model, criterion)
-
+        val_prec_list.append(prec1)
         # remember best prec@1 and save checkpoint
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
@@ -247,7 +247,7 @@ def main():
             'best_prec1': best_prec1,
             'optimizer' : optimizer.state_dict(),
         }, is_best)
-
+    print(val_prec_list)
 
 def train(train_loader, model, criterion, optimizer, epoch):
     batch_time = AverageMeter()
