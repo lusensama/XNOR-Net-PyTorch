@@ -35,7 +35,7 @@ class BinActive(torch.autograd.Function):
 
 class BinConv2d(nn.Module): # change the name of BinConv2d
     def __init__(self, input_channels, output_channels,
-            kernel_size=-1, stride=-1, padding=-1, groups=1, dropout=0,
+            kernel_size=-1, stride=-1, padding=-1, groups=1, dropout=0.0,
             Linear=False):
         super(BinConv2d, self).__init__()
         self.layer_type = 'BinConv2d'
@@ -158,9 +158,9 @@ class AlexNet(nn.Module):
         )
         self.classifier = nn.Sequential(
             BinConv2d(256 * 2 * 2, 4096, Linear=True, dropout=0.1),
-            BinConv2d(4096, 4096, dropout=0.5, Linear=True),
+            BinConv2d(4096, 4096, dropout=0.1, Linear=True),
             # nn.BatchNorm1d(4096, eps=1e-3, momentum=0.1, affine=True),
-            nn.Dropout(),
+            # nn.Dropout(),
             nn.Linear(4096, num_classes),
         )
 
