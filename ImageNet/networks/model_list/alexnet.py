@@ -73,7 +73,7 @@ class BinActive(torch.autograd.Function):
 
 class BinConv2d(nn.Module):  # change the name of BinConv2d
     def __init__(self, input_channels, output_channels,
-                 kernel_size=-1, stride=-1, padding=-1, groups=1, dropout=0,
+                 kernel_size=-1, stride=-1, padding=-1, groups=1, dropout=0.0,
                  Linear=False):
         super(BinConv2d, self).__init__()
         self.layer_type = 'BinConv2d'
