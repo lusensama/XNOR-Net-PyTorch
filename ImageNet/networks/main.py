@@ -33,7 +33,7 @@ parser.add_argument('--data', metavar='DATA_PATH', default='./data/',
                     help='path to imagenet data (default: ./data/)')
 parser.add_argument('--caffe-data',  default=False, action='store_true',
                     help='whether use caffe-data')
-parser.add_argument('--cifar',  default=True, action='store_true',
+parser.add_argument('--cifar',  default=False, action='store_true',
                     help='use cifar data by default')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 8)')
@@ -107,12 +107,16 @@ def main():
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
-            args.start_epoch = checkpoint['epoch']
-            best_prec1 = checkpoint['best_prec1']
-            model.load_state_dict(checkpoint['state_dict'])
-            optimizer.load_state_dict(checkpoint['optimizer'])
+            # TODO: Temporary remake
+            args.start_epoch = 0
+            best_prec1 = 0.0
+            model.load_state_dict(checkpoint, strict=False)
+            # args.start_epoch = checkpoint['epoch']
+            # best_prec1 = checkpoint['best_prec1']
+            # model.load_state_dict(checkpoint['state_dict'])
+            # optimizer.load_state_dict(checkpoint['optimizer'])
             print("=> loaded checkpoint '{}' (epoch {})"
-                  .format(args.resume, checkpoint['epoch']))
+                  .format(args.resume, args.start_epoch))
             del checkpoint
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
@@ -188,8 +192,10 @@ def main():
         import torchvision
         import torchvision.transforms as transforms
         import torchvision.datasets as datasets
-        traindir = os.path.join(args.data, 'train')
-        valdir = os.path.join(args.data, 'val')
+        # traindir = os.path.join(args.data, 'train')
+        # valdir = os.path.join(args.data, 'test')
+        traindir = args.data + '/train'
+        valdir = args.data + '/ILSVRC2012_img_val'
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                 std=[1./255., 1./255., 1./255.])
 
@@ -204,7 +210,6 @@ def main():
                     transforms.ToTensor(),
                     normalize,
                     ]))
-
         train_loader = torch.utils.data.DataLoader(
                 train_dataset, batch_size=args.batch_size, shuffle=True,
                 num_workers=args.workers, pin_memory=True)
@@ -302,16 +307,16 @@ def train(train_loader, model, criterion, optimizer, epoch):
                               loss_record/10,
                             epoch * len(train_loader) + i)
 
-
+            # 'timer {times}'.format(
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                  'timer {times}'.format(
-                  # 'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+
+                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                    epoch, i, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, top1=top1, times=end-timers))
+                   data_time=data_time, loss=losses, top1=top1, top5=top5))
             loss_record=0.0
         gc.collect()
     writer.add_scalar('top1 accuracy', top1.val, epoch)

@@ -33,42 +33,42 @@ class BinActive(torch.autograd.Function):
         # print('input_ened')
         return grad_input
 
-# class BinConv2d(nn.Module): # change the name of BinConv2d
-#     def __init__(self, input_channels, output_channels,
-#             kernel_size=-1, stride=-1, padding=-1, groups=1, dropout=0.0,
-#             Linear=False):
-#         super(BinConv2d, self).__init__()
-#         self.layer_type = 'BinConv2d'
-#         self.kernel_size = kernel_size
-#         self.stride = stride
-#         self.padding = padding
-#         self.dropout_ratio = dropout
-#
-#         if dropout!=0:
-#             self.dropout = nn.Dropout(dropout)
-#         self.Linear = Linear
-#         if not self.Linear:
-#             # self.bn = nn.BatchNorm2d(input_channels, eps=1e-4, momentum=0.1, affine=True)
-#             self.conv = nn.Conv2d(input_channels, output_channels,
-#                     kernel_size=kernel_size, stride=stride, padding=padding, groups=groups, bias=False)
-#         else:
-#             # self.bn = nn.BatchNorm1d(input_channels, eps=1e-4, momentum=0.1, affine=True)
-#             self.linear = nn.Linear(input_channels, output_channels)
-#         self.relu = nn.ReLU(inplace=True)
-#
-#     def forward(self, x):
-#         # x = self.bn(x)
-#         # binAct = BinActive.apply
-#         # x = binAct(x)
-#         # x=BinActive()(x)
-#         if self.dropout_ratio!=0:
-#             x = self.dropout(x)
-#         if not self.Linear:
-#             x = self.conv(x)
-#         else:
-#             x = self.linear(x)
-#         x = self.relu(x)
-#         return x
+class BinConv2d(nn.Module): # change the name of BinConv2d
+    def __init__(self, input_channels, output_channels,
+            kernel_size=-1, stride=-1, padding=-1, groups=1, dropout=0.0,
+            Linear=False):
+        super(BinConv2d, self).__init__()
+        self.layer_type = 'BinConv2d'
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        self.dropout_ratio = dropout
+
+        if dropout!=0:
+            self.dropout = nn.Dropout(dropout)
+        self.Linear = Linear
+        if not self.Linear:
+            # self.bn = nn.BatchNorm2d(input_channels, eps=1e-4, momentum=0.1, affine=True)
+            self.conv = nn.Conv2d(input_channels, output_channels,
+                    kernel_size=kernel_size, stride=stride, padding=padding, groups=groups, bias=False)
+        else:
+            # self.bn = nn.BatchNorm1d(input_channels, eps=1e-4, momentum=0.1, affine=True)
+            self.linear = nn.Linear(input_channels, output_channels, bias=False)
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        # x = self.bn(x)
+        # binAct = BinActive.apply
+        # x = binAct(x)
+        # x=BinActive()(x)
+        if self.dropout_ratio!=0:
+            x = self.dropout(x)
+        if not self.Linear:
+            x = self.conv(x)
+        else:
+            x = self.linear(x)
+        x = self.relu(x)
+        return x
 
 
 class BinConv2d(nn.Module):  # change the name of BinConv2d
@@ -181,6 +181,7 @@ def alexnet(pretrained=False, **kwargs):
     model = AlexNet(**kwargs)
     if pretrained:
         model_path = 'model_list/alexnet.pth.tar'
+        # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
         model.load_state_dict(pretrained_model['state_dict'], strict=False)
     return model
