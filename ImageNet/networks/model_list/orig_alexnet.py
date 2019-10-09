@@ -157,7 +157,7 @@ def alexnet(pretrained=False, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = XNOR(**kwargs)
+    model = AlexNet(**kwargs)
     if pretrained:
         model_path = 'model_50_cpu.pth'
         pretrained_model = torch.load(model_path)
@@ -175,5 +175,5 @@ def alexnet(pretrained=False, **kwargs):
         #     pretrained_model.pop(key)
         # pretrained_dict = {k: v for k, v in pretrained_model.items() if k in model_dict}
         model.load_state_dict(pretrained_model, strict=False)
-        print(model.state_dict())
+        # print(model.state_dict())
     return model
