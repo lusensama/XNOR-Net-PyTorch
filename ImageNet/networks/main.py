@@ -69,6 +69,8 @@ best_prec1 = 0
 # define global bin_op
 bin_op = None
 
+cuda0 = torch.device('cuda:0')
+cuda1 = torch.device('cuda:1')
 
 def main():
 
@@ -272,7 +274,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         data_time.update(time.time() - end)
 
         target = target.cuda(non_blocking=True)
-        input_var = torch.autograd.Variable(input)
+        input_var = torch.autograd.Variable(input).cuda()
         target_var = torch.autograd.Variable(target)
 
         # process the weights including binarization
