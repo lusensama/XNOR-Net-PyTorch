@@ -70,6 +70,8 @@ best_prec1 = 0
 # define global bin_op
 bin_op = None
 
+cuda0 = torch.device('cuda:0')
+cuda1 = torch.device('cuda:1')
 
 # def main():
 #
