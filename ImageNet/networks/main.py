@@ -17,6 +17,7 @@ import torchvision.transforms as transforms
 # import torchvision.datasets as datasets
 import model_list
 import util
+from data_loader import load_data
 import matplotlib as plt
 import numpy as np
 # set the seed
@@ -35,14 +36,14 @@ parser.add_argument('--caffe-data',  default=False, action='store_true',
                     help='whether use caffe-data')
 parser.add_argument('--cifar',  default=False, action='store_true',
                     help='use cifar data by default')
-parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 8)')
 parser.add_argument('--epochs', default=50, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=256, type=int,
-                    metavar='N', help='mini-batch size (default: 256)')
+parser.add_argument('-b', '--batch-size', default=128, type=int,
+                    metavar='N', help='mini-batch size (default: 128)')
 parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.90, type=float, metavar='M',
@@ -70,6 +71,189 @@ best_prec1 = 0
 bin_op = None
 
 
+# def main():
+#
+#     global args, best_prec1
+#     args = parser.parse_args()
+#
+#     # create model
+#     if args.arch=='alexnet':
+#         model = model_list.alexnet(pretrained=args.pretrained)
+#         input_size = 227
+#     else:
+#         raise Exception('Model not supported yet')
+#
+#     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
+#         model.features = torch.nn.DataParallel(model.features)
+#         model.cuda()
+#     else:
+#         model = torch.nn.DataParallel(model).cuda()
+#
+#     # define loss function (criterion) and optimizer
+#     criterion = nn.CrossEntropyLoss().cuda()
+#
+#     optimizer = torch.optim.Adam(model.parameters(), args.lr,
+#                                 weight_decay=args.weight_decay)
+#
+#     for m in model.modules():
+#         if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+#             c = float(m.weight.data[0].nelement())
+#             m.weight.data = m.weight.data.normal_(0, 2.0/c)
+#         elif isinstance(m, nn.BatchNorm2d):
+#             m.weight.data = m.weight.data.zero_().add(1.0)
+#             m.bias.data = m.bias.data.zero_()
+#
+#     # optionally resume from a checkpoint
+#     if args.resume:
+#         if os.path.isfile(args.resume):
+#             print("=> loading checkpoint '{}'".format(args.resume))
+#             checkpoint = torch.load(args.resume)
+#             # TODO: Temporary remake
+#             args.start_epoch = 0
+#             best_prec1 = 0.0
+#             model.load_state_dict(checkpoint, strict=False)
+#             # args.start_epoch = checkpoint['epoch']
+#             # best_prec1 = checkpoint['best_prec1']
+#             # model.load_state_dict(checkpoint['state_dict'])
+#             # optimizer.load_state_dict(checkpoint['optimizer'])
+#             print("=> loaded checkpoint '{}' (epoch {})"
+#                   .format(args.resume, args.start_epoch))
+#             del checkpoint
+#         else:
+#             print("=> no checkpoint found at '{}'".format(args.resume))
+#
+#     cudnn.benchmark = True
+#
+#     # Data loading code
+#
+#     if args.caffe_data:
+#         print('==> Using Caffe Dataset')
+#         cwd = os.getcwd()
+#         sys.path.append(cwd+'/../')
+#         import datasets as datasets
+#         import datasets.transforms as transforms
+#         if not os.path.exists(args.data+'/imagenet_mean.binaryproto'):
+#             print("==> Data directory"+args.data+"does not exits")
+#             print("==> Please specify the correct data path by")
+#             print("==>     --data <DATA_PATH>")
+#             return
+#
+#         normalize = transforms.Normalize(
+#                 meanfile=args.data+'/imagenet_mean.binaryproto')
+#
+#
+#         train_dataset = datasets.ImageFolder(
+#             args.data,
+#             transforms.Compose([
+#                 transforms.RandomHorizontalFlip(),
+#                 transforms.ToTensor(),
+#                 normalize,
+#                 transforms.RandomSizedCrop(input_size),
+#             ]),
+#             Train=True)
+#
+#         train_sampler = None
+#
+#         train_loader = torch.utils.data.DataLoader(
+#             train_dataset, batch_size=args.batch_size, shuffle=False,
+#             num_workers=args.workers, pin_memory=True, sampler=train_sampler)
+#
+#         val_loader = torch.utils.data.DataLoader(
+#             datasets.ImageFolder(args.data, transforms.Compose([
+#                 transforms.ToTensor(),
+#                 normalize,
+#                 transforms.CenterCrop(input_size),
+#             ]),
+#             Train=False),
+#             batch_size=args.batch_size, shuffle=False,
+#             num_workers=args.workers, pin_memory=True)
+#     elif args.cifar:
+#         import torchvision.transforms as transforms
+#         import torchvision
+#         transform = transforms.Compose(
+#             [transforms.ToTensor(),
+#              transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+#
+#         trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
+#                                                 download=True, transform=transform)
+#         train_loader = torch.utils.data.DataLoader(trainset, batch_size=128,
+#                                                   shuffle=True, num_workers=2)
+#
+#         testset = torchvision.datasets.CIFAR10(root='./data', train=False,
+#                                                download=True, transform=transform)
+#         val_loader = torch.utils.data.DataLoader(testset, batch_size=100,
+#                                                  shuffle=False, num_workers=2)
+#
+#         classes = ('plane', 'car', 'bird', 'cat',
+#                    'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+#
+#
+#     else:
+#         print('==> Using Pytorch Dataset')
+#         import torchvision
+#         import torchvision.transforms as transforms
+#         import torchvision.datasets as datasets
+#         # traindir = os.path.join(args.data, 'train')
+#         # valdir = os.path.join(args.data, 'test')
+#         traindir = args.data + '/train'
+#         valdir = args.data + '/ILSVRC2012_img_val'
+#         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+#                 std=[1./255., 1./255., 1./255.])
+#
+#         # torchvision.set_image_backend('accimage')
+#
+#         train_dataset = datasets.ImageFolder(
+#                 traindir,
+#                 transforms.Compose([
+#                     transforms.Resize((256, 256)),
+#                     transforms.RandomCrop(input_size),
+#                     transforms.RandomHorizontalFlip(),
+#                     transforms.ToTensor(),
+#                     normalize,
+#                     ]))
+#         train_loader = torch.utils.data.DataLoader(
+#                 train_dataset, batch_size=args.batch_size, shuffle=True,
+#                 num_workers=args.workers, pin_memory=True)
+#         val_loader = torch.utils.data.DataLoader(
+#                 datasets.ImageFolder(valdir, transforms.Compose([
+#                     transforms.Resize((256, 256)),
+#                     transforms.CenterCrop(input_size),
+#                     transforms.ToTensor(),
+#                     normalize,
+#                     ])),
+#                 batch_size=args.batch_size, shuffle=False,
+#                 num_workers=args.workers, pin_memory=True)
+#
+#     # print (model)
+#
+#     # define the binarization operator
+#     global bin_op
+#     bin_op = util.BinOp(model)
+#
+#     if args.evaluate:
+#         validate(val_loader, model, criterion)
+#         return
+#     val_prec_list = []
+#     for epoch in range(args.start_epoch, args.epochs):
+#         adjust_learning_rate(optimizer, epoch)
+#
+#         # train for one epoch
+#         train(train_loader, model, criterion, optimizer, epoch)
+#
+#         # evaluate on validation set
+#         prec1 = validate(val_loader, model, criterion)
+#         val_prec_list.append(prec1)
+#         # remember best prec@1 and save checkpoint
+#         is_best = prec1 > best_prec1
+#         best_prec1 = max(prec1, best_prec1)
+#         save_checkpoint({
+#             'epoch': epoch + 1,
+#             'arch': args.arch,
+#             'state_dict': model.state_dict(),
+#             'best_prec1': best_prec1,
+#             'optimizer' : optimizer.state_dict(),
+#         }, is_best)
+#     print(val_prec_list)
 def main():
 
     global args, best_prec1
@@ -194,34 +378,8 @@ def main():
         import torchvision.datasets as datasets
         # traindir = os.path.join(args.data, 'train')
         # valdir = os.path.join(args.data, 'test')
-        traindir = args.data + '/train'
-        valdir = args.data + '/ILSVRC2012_img_val'
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                std=[1./255., 1./255., 1./255.])
+        train_loader, val_loader, test_loader, input_shape = load_data(dataset='imagenet', data_dir=args.data, batch_size=args.batch_size, workers=4)
 
-        torchvision.set_image_backend('accimage')
-
-        train_dataset = datasets.ImageFolder(
-                traindir,
-                transforms.Compose([
-                    transforms.Resize((256, 256)),
-                    transforms.RandomCrop(input_size),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    normalize,
-                    ]))
-        train_loader = torch.utils.data.DataLoader(
-                train_dataset, batch_size=args.batch_size, shuffle=True,
-                num_workers=args.workers, pin_memory=True)
-        val_loader = torch.utils.data.DataLoader(
-                datasets.ImageFolder(valdir, transforms.Compose([
-                    transforms.Resize((256, 256)),
-                    transforms.CenterCrop(input_size),
-                    transforms.ToTensor(),
-                    normalize,
-                    ])),
-                batch_size=args.batch_size, shuffle=False,
-                num_workers=args.workers, pin_memory=True)
 
     # print (model)
 
@@ -272,12 +430,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
         data_time.update(time.time() - end)
 
         target = target.cuda(non_blocking=True)
-        input_var = torch.autograd.Variable(input)
+        input_var = torch.autograd.Variable(input).cuda()
         target_var = torch.autograd.Variable(target)
 
         # process the weights including binarization
         bin_op.binarization()
-        
+
         # compute output
         output = model(input_var)
         loss = criterion(output, target_var)

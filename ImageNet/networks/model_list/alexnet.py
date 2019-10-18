@@ -91,8 +91,8 @@ class AlexNet(nn.Module):
             BinConv2d(96, 256, kernel_size=5, stride=1, padding=2, groups=1),
             nn.AvgPool2d(kernel_size=3, stride=2),
             BinConv2d(256, 384, kernel_size=3, stride=1, padding=1),
-            BinConv2d(384, 384, kernel_size=3, stride=1, padding=1, groups=1, dropout=.1),
-            BinConv2d(384, 256, kernel_size=3, stride=1, padding=1, groups=1, dropout=.1),
+            BinConv2d(384, 384, kernel_size=3, stride=1, padding=1, groups=1, dropout=.3),
+            BinConv2d(384, 256, kernel_size=3, stride=1, padding=1, groups=1, dropout=.3),
             nn.AvgPool2d(kernel_size=3, stride=2),
         )
         self.classifier = nn.Sequential(
