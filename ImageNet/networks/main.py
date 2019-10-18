@@ -462,7 +462,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         batch_time.update(time.time() - end)
         end = time.time()
 
-#         if i % args.print_freq == 0:
+        if i % args.print_freq == 0:
 #             writer.add_scalar('training loss',
 #                               loss_record/10,
 #                             epoch * len(train_loader) + i)
