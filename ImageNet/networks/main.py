@@ -198,7 +198,7 @@ def main():
         # traindir = os.path.join(args.data, 'train')
         # valdir = os.path.join(args.data, 'test')
         traindir = args.data + '/train'
-        valdir = args.data + '/ILSVRC2012_img_val'
+        valdir = args.data + '/val'
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                 std=[1./255., 1./255., 1./255.])
 
