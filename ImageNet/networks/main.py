@@ -420,7 +420,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-    writer = SummaryWriter('runs/loss_graph')
+#     writer = SummaryWriter('runs/loss_graph')
     loss_record = 0.0
     # switch to train mode
     model.train()
@@ -462,10 +462,10 @@ def train(train_loader, model, criterion, optimizer, epoch):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % args.print_freq == 0:
-            writer.add_scalar('training loss',
-                              loss_record/10,
-                            epoch * len(train_loader) + i)
+#         if i % args.print_freq == 0:
+#             writer.add_scalar('training loss',
+#                               loss_record/10,
+#                             epoch * len(train_loader) + i)
 
             # 'timer {times}'.format(
             print('Epoch: [{0}][{1}/{2}]\t'
