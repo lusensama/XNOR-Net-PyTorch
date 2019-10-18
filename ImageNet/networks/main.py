@@ -202,7 +202,7 @@ def main():
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                 std=[1./255., 1./255., 1./255.])
 
-        # torchvision.set_image_backend('accimage')
+        torchvision.set_image_backend('accimage')
 
         train_dataset = datasets.ImageFolder(
                 traindir,
@@ -432,7 +432,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         data_time.update(time.time() - end)
 
         target = target.cuda(non_blocking=True)
-        input_var = torch.autograd.Variable(input).cuda()
+        input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 
         # process the weights including binarization
