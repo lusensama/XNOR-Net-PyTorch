@@ -202,7 +202,7 @@ def main():
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                 std=[1./255., 1./255., 1./255.])
 
-        torchvision.set_image_backend('accimage')
+#         torchvision.set_image_backend('accimage')
 
         train_dataset = datasets.ImageFolder(
                 traindir,
