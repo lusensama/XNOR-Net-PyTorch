@@ -444,7 +444,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         bin_op.binarization()
 
         # compute output
-        output = model(input_var)
+        output = model(input_var).to(cuda0)
         loss = criterion(output, target_var)
         loss_record += loss.item()
         # measure accuracy and record loss
