@@ -120,6 +120,7 @@ def alexnet(pretrained=False, **kwargs):
     model = AlexNet(**kwargs)
     if pretrained:
         model_path = 'model_list/alexnet_best_51.pth.tar'
+        print('loading pretrianed model at ' + model_path)
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
         # from collections import OrderedDict
