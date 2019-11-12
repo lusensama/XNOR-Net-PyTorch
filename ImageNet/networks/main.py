@@ -90,13 +90,14 @@ def main():
         raise Exception('Model not supported yet')
 
     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-        model.features = torch.nn.DataParallel(model.features)
-        model.cuda(cuda1)
+        model.features = torch.nn.DataParallel(model.features, device_ids=[0,1])
+
+        model.to(cuda0)
     else:
         model = torch.nn.DataParallel(model).cuda()
 
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda(cuda1)
+    criterion = nn.CrossEntropyLoss().to(cuda0)
 
     optimizer = torch.optim.Adam(model.parameters(), args.lr, betas=(0.0, 0.999),
                                 weight_decay=args.weight_decay)
@@ -435,9 +436,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        target = target.cuda(cuda1,non_blocking=True)
-        input_var = torch.autograd.Variable(input)
-        target_var = torch.autograd.Variable(target)
+        target = target.cuda(non_blocking=True)
+        input_var = torch.autograd.Variable(input).to(cuda0)
+        target_var = torch.autograd.Variable(target).to(cuda0)
 
         # process the weights including binarization
         bin_op.binarization()
@@ -500,7 +501,7 @@ def validate(val_loader, model, criterion):
     end = time.time()
     bin_op.binarization()
     for i, (input, target) in enumerate(val_loader):
-        target = target.cuda(cuda1, non_blocking=True)
+        target = target.cuda(non_blocking=True)
         with torch.no_grad():
             input_var = torch.autograd.Variable(input)
             target_var = torch.autograd.Variable(target)
