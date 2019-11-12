@@ -92,7 +92,7 @@ def main():
     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
         pass
         # model.features = torch.nn.DataParallel(model.features)
-        # model.cuda()
+        model.cuda()
     else:
         model = torch.nn.DataParallel(model).cuda()
 
