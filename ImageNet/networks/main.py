@@ -71,8 +71,8 @@ best_prec1 = 0
 # define global bin_op
 bin_op = None
 
-# cuda0 = torch.device('cuda:0')
-# cuda1 = torch.device('cuda:1')
+cuda0 = torch.device('cuda:0')
+cuda1 = torch.device('cuda:1')
 
 def main():
 
@@ -91,7 +91,7 @@ def main():
 
     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
         model.features = torch.nn.DataParallel(model.features)
-        model.cuda()
+        model.cuda(cuda1)
     else:
         model = torch.nn.DataParallel(model).cuda()
 
