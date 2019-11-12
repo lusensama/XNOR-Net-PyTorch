@@ -90,8 +90,9 @@ def main():
         raise Exception('Model not supported yet')
 
     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-        model.features = torch.nn.DataParallel(model.features)
-        model.cuda()
+        pass
+        # model.features = torch.nn.DataParallel(model.features)
+        # model.cuda()
     else:
         model = torch.nn.DataParallel(model).cuda()
 
