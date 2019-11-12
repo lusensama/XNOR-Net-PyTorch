@@ -96,7 +96,7 @@ def main():
         model = torch.nn.DataParallel(model).cuda()
 
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda()
+    criterion = nn.CrossEntropyLoss().cuda(cuda1)
 
     optimizer = torch.optim.Adam(model.parameters(), args.lr, betas=(0.0, 0.999),
                                 weight_decay=args.weight_decay)
@@ -435,7 +435,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        target = target.cuda(non_blocking=True)
+        target = target.cuda(cuda1,non_blocking=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 
@@ -500,7 +500,7 @@ def validate(val_loader, model, criterion):
     end = time.time()
     bin_op.binarization()
     for i, (input, target) in enumerate(val_loader):
-        target = target.cuda(non_blocking=True)
+        target = target.cuda(cuda1, non_blocking=True)
         with torch.no_grad():
             input_var = torch.autograd.Variable(input)
             target_var = torch.autograd.Variable(target)
