@@ -82,10 +82,10 @@ def main():
     # create model
     if args.arch=='alexnet':
         model = model_list.alexnet(pretrained=args.pretrained)
-        input_size = 224
+        input_size = 227
     elif args.arch=='vgg':
         model = model_list.vgg_net(pretrained=args.pretrained)
-        input_size = 224
+        input_size = 227
     else:
         raise Exception('Model not supported yet')
 
@@ -436,7 +436,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         data_time.update(time.time() - end)
 
         target = target.cuda(non_blocking=True)
-        input_var = torch.autograd.Variable(input).cuda()
+        input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 
         # process the weights including binarization
