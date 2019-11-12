@@ -72,7 +72,7 @@ best_prec1 = 0
 bin_op = None
 
 cuda0 = torch.device('cuda:0')
-cuda1 = torch.device('cuda:1')
+# cuda1 = torch.device('cuda:1')
 
 def main():
 
@@ -90,14 +90,14 @@ def main():
         raise Exception('Model not supported yet')
 
     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-        model.features = torch.nn.DataParallel(model.features, device_ids=[0,1])
-
+        # model.features = torch.nn.DataParallel(model.features)
+        model = torch.nn.DataParallel(model, device_ids=[0, 1])
         model.to(cuda0)
     else:
         model = torch.nn.DataParallel(model).cuda()
 
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().to(cuda0)
+    criterion = nn.CrossEntropyLoss().cuda()
 
     optimizer = torch.optim.Adam(model.parameters(), args.lr, betas=(0.0, 0.999),
                                 weight_decay=args.weight_decay)
@@ -437,14 +437,14 @@ def train(train_loader, model, criterion, optimizer, epoch):
         data_time.update(time.time() - end)
 
         target = target.cuda(non_blocking=True)
-        input_var = torch.autograd.Variable(input).to(cuda0)
-        target_var = torch.autograd.Variable(target).to(cuda0)
+        input_var = torch.autograd.Variable(input)
+        target_var = torch.autograd.Variable(target)
 
         # process the weights including binarization
         bin_op.binarization()
 
         # compute output
-        output = model(input_var).to(cuda0)
+        output = model(input_var)
         loss = criterion(output, target_var)
         loss_record += loss.item()
         # measure accuracy and record loss
