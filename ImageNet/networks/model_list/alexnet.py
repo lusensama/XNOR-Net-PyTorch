@@ -123,7 +123,7 @@ def alexnet(pretrained=False, **kwargs):
         print('loading pretrianed model at ' + model_path)
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
-        # model.features = torch.nn.DataParallel(model.features)
+        model.features = torch.nn.DataParallel(model.features)
         # model.cuda()
         model.load_state_dict(pretrained_model['state_dict'])
         # model.load_state_dict(pretrained_model['state_dict'], strict=True)
