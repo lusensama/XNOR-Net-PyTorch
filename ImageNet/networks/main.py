@@ -71,7 +71,7 @@ best_prec1 = 0
 # define global bin_op
 bin_op = None
 
-cuda0 = torch.device('cuda:0')
+# cuda0 = torch.device('cuda:0')
 # cuda1 = torch.device('cuda:1')
 
 def main():
@@ -90,9 +90,8 @@ def main():
         raise Exception('Model not supported yet')
 
     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-        # model.features = torch.nn.DataParallel(model.features)
-        model = torch.nn.DataParallel(model, device_ids=[0, 1])
-        model.to(cuda0)
+        model.features = torch.nn.DataParallel(model.features)
+        model.cuda()
     else:
         model = torch.nn.DataParallel(model).cuda()
 
