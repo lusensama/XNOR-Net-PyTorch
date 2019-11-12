@@ -119,6 +119,7 @@ def main():
             # args.start_epoch = 0
             # best_prec1 = 0.0
             # args.start_epoch = checkpoint['epoch']
+            model.features = torch.nn.DataParallel(model.features)
             best_prec1 = checkpoint['best_prec1']
             model.load_state_dict(checkpoint['state_dict'])
 
