@@ -82,6 +82,7 @@ class AlexNet(nn.Module):
     #     return x
     def __init__(self, num_classes=1000):
         super(AlexNet, self).__init__()
+        self.dr = .1
         self.num_classes = num_classes
         self.features = nn.Sequential(
             nn.Conv2d(3, 96, kernel_size=11, stride=4, padding=2, bias=False),
@@ -91,13 +92,13 @@ class AlexNet(nn.Module):
             BinConv2d(96, 256, kernel_size=5, stride=1, padding=2, groups=1),
             nn.AvgPool2d(kernel_size=3, stride=2),
             BinConv2d(256, 384, kernel_size=3, stride=1, padding=1),
-            BinConv2d(384, 384, kernel_size=3, stride=1, padding=1, groups=1, dropout=.1),
-            BinConv2d(384, 256, kernel_size=3, stride=1, padding=1, groups=1, dropout=.1),
+            BinConv2d(384, 384, kernel_size=3, stride=1, padding=1, groups=1, dropout=self.dr),
+            BinConv2d(384, 256, kernel_size=3, stride=1, padding=1, groups=1, dropout=self.dr),
             nn.AvgPool2d(kernel_size=3, stride=2),
         )
         self.classifier = nn.Sequential(
-            BinConv2d(256 * 6 * 6, 4096, Linear=True, dropout=0.1),
-            BinConv2d(4096, 4096, Linear=True, dropout=0.1),
+            BinConv2d(256 * 6 * 6, 4096, Linear=True),
+            BinConv2d(4096, 4096, Linear=True, dropout=self.dr),
             # nn.BatchNorm1d(4096, eps=1e-3, momentum=0.1, affine=True),
             # nn.Dropout(),
             nn.Linear(4096, num_classes, bias=False),
@@ -118,8 +119,17 @@ def alexnet(pretrained=False, **kwargs):
     """
     model = AlexNet(**kwargs)
     if pretrained:
-        model_path = 'model_list/alexnet.pth.tar'
+        model_path = 'model_list/alexnet_best_51.pth.tar'
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
-        model.load_state_dict(pretrained_model['state_dict'], strict=False)
+        # from collections import OrderedDict
+        # new_state_dict = OrderedDict()
+        # for k, v in pretrained_model.items():
+        #     name = k.replace(".module", "")  # remove `module.`
+        #     new_state_dict[name] = v
+        # load params
+        model.features = torch.nn.DataParallel(model.features)
+        model.cuda()
+        model.load_state_dict(pretrained_model['state_dict'])
+        # model.load_state_dict(pretrained_model['state_dict'], strict=True)
     return model

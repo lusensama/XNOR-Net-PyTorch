@@ -27,6 +27,7 @@ torch.cuda.manual_seed(1)
 import sys
 import gc
 #--evaluate --pretrained
+# --data C:\imagenet_data --epochs 50  --workers 4 -b 128 --lr 0.05 --resume model_best_56.pth.tar
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('--arch', '-a', metavar='ARCH', default='alexnet',
                     help='model architecture (default: alexnet)')
@@ -44,7 +45,7 @@ parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
 parser.add_argument('-b', '--batch-size', default=128, type=int,
                     metavar='N', help='mini-batch size (default: 128)')
-parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+parser.add_argument('--lr', '--learning-rate', default=0.0001, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.90, type=float, metavar='M',
                     help='momentum')
@@ -81,7 +82,10 @@ def main():
     # create model
     if args.arch=='alexnet':
         model = model_list.alexnet(pretrained=args.pretrained)
-        input_size = 227
+        input_size = 224
+    elif args.arch=='vgg':
+        model = model_list.vgg_net(pretrained=args.pretrained)
+        input_size = 224
     else:
         raise Exception('Model not supported yet')
 
@@ -94,7 +98,7 @@ def main():
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
 
-    optimizer = torch.optim.Adam(model.parameters(), args.lr,
+    optimizer = torch.optim.Adam(model.parameters(), args.lr, betas=(0.0, 0.999),
                                 weight_decay=args.weight_decay)
 
     for m in model.modules():
@@ -111,12 +115,12 @@ def main():
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
             # TODO: Temporary remake
-            args.start_epoch = 0
-            best_prec1 = 0.0
-            model.load_state_dict(checkpoint, strict=False)
+            # args.start_epoch = 0
+            # best_prec1 = 0.0
             # args.start_epoch = checkpoint['epoch']
-            # best_prec1 = checkpoint['best_prec1']
-            # model.load_state_dict(checkpoint['state_dict'])
+            best_prec1 = checkpoint['best_acc1']
+            model.load_state_dict(checkpoint['state_dict'])
+
             # optimizer.load_state_dict(checkpoint['optimizer'])
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, args.start_epoch))
@@ -254,7 +258,7 @@ def main():
             'state_dict': model.state_dict(),
             'best_prec1': best_prec1,
             'optimizer' : optimizer.state_dict(),
-        }, is_best)
+        }, is_best, filename=args.arch+'_')
     print(val_prec_list)
 # def main():
 #
@@ -531,10 +535,10 @@ def validate(val_loader, model, criterion):
     return top1.avg
 
 
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, filename)
+def save_checkpoint(state, is_best, filename='alexnet_'):
+    torch.save(state, filename + 'checkpoint.pth.tar')
     if is_best:
-        shutil.copyfile(filename, 'model_best.pth.tar')
+        shutil.copyfile(filename, filename +'model_best.pth.tar')
 
 
 class AverageMeter(object):
@@ -557,7 +561,7 @@ class AverageMeter(object):
 
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.lr * (0.1 ** (epoch // 30))
+    lr = args.lr * (0.5 ** (epoch // 4))
     print ('Learning rate:', lr)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
