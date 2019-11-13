@@ -242,14 +242,15 @@ def main():
         validate(val_loader, model, criterion)
         return
     val_prec_list = []
+    writer = SummaryWriter('runs/loss_graph')
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(optimizer, epoch)
 
         # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch)
+        train(train_loader, model, criterion, optimizer, epoch, writer)
 
         # evaluate on validation set
-        prec1 = validate(val_loader, model, criterion)
+        prec1, prec5 = validate(val_loader, model, criterion)
         val_prec_list.append(prec1)
         # remember best prec@1 and save checkpoint
         is_best = prec1 > best_prec1
@@ -261,6 +262,8 @@ def main():
             'best_prec1': best_prec1,
             'optimizer' : optimizer.state_dict(),
         }, is_best, filename=args.arch+'_')
+        writer.add_scalar('top1 accuracy', prec1, epoch)
+        writer.add_scalar('top5 accuracy', prec5, epoch)
     print(val_prec_list)
 # def main():
 #
@@ -420,13 +423,13 @@ def main():
 #         }, is_best)
 #     print(val_prec_list)
 
-def train(train_loader, model, criterion, optimizer, epoch):
+def train(train_loader, model, criterion, optimizer, epoch, writer):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-    writer = SummaryWriter('runs/loss_graph')
+
     loss_record = 0.0
     # switch to train mode
     model.train()
@@ -485,8 +488,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                    data_time=data_time, loss=losses, top1=top1, top5=top5))
             loss_record=0.0
         gc.collect()
-    writer.add_scalar('top1 accuracy', top1.val, epoch)
-    writer.add_scalar('top5 accuracy', top5.val, epoch)
+
 
 
 def validate(val_loader, model, criterion):
@@ -534,7 +536,7 @@ def validate(val_loader, model, criterion):
     print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
           .format(top1=top1, top5=top5))
 
-    return top1.avg
+    return top1.avg, top5.avg
 
 
 def save_checkpoint(state, is_best, filename='alexnet_'):
