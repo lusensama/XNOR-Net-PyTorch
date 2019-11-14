@@ -78,7 +78,7 @@ def vgg_net(pretrained=False, **kwargs):
     """
     model = Vgg(**kwargs)
     if pretrained:
-        model_path = 'model_best29.pth.tar'
+        model_path = 'vgg_best_full_prec.pth.tar'
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
         # from collections import OrderedDict

@@ -44,6 +44,7 @@ class BinOp():
         self.bin_range = np.linspace(start_range,
                 end_range, end_range-start_range+1)\
                         .astype('int').tolist()
+
         self.num_of_params = len(self.bin_range)
         self.saved_params = []
         self.target_params = []
@@ -56,6 +57,7 @@ class BinOp():
                     tmp = m.weight.data.clone()
                     self.saved_params.append(tmp)
                     self.target_modules.append(m.weight)
+        print('bin_range is {}, count_targets is {}, index is {}'.format(self.bin_range, count_targets, index))
 
     def binarization(self):
         self.meancenterConvParams()
