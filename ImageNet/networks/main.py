@@ -125,11 +125,14 @@ def main():
             try:
                 args.start_epoch = checkpoint['epoch']
                 best_prec1 = checkpoint['best_prec1']
+                model.features = torch.nn.DataParallel(model.features)
+                model.load_state_dict(checkpoint['state_dict'])
             except KeyError:
+                model.load_state_dict(checkpoint)
                 pass
-            model.features = torch.nn.DataParallel(model.features)
 
-            model.load_state_dict(checkpoint['state_dict'])
+
+
 
             # optimizer.load_state_dict(checkpoint['optimizer'])
             print("=> loaded checkpoint '{}' (epoch {})"
