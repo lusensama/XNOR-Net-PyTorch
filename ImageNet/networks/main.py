@@ -83,9 +83,13 @@ def main():
     if args.arch=='alexnet':
         model = model_list.alexnet(pretrained=args.pretrained)
         input_size = 227
-    elif args.arch=='vgg':
+    elif args.arch=='vgg16':
         model = model_list.vgg_net(pretrained=args.pretrained)
         input_size = 227
+    elif args.arch=='vgg15':
+        model = model_list.vgg_15(pretrained=args.pretrained)
+        input_size = 227
+
     else:
         raise Exception('Model not supported yet')
 
@@ -565,7 +569,7 @@ class AverageMeter(object):
 
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.lr * (0.5 ** (epoch // 5))
+    lr = args.lr
     print ('Learning rate:', lr)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
