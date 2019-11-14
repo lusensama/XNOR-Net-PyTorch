@@ -52,13 +52,13 @@ class Vgg(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Dropout(self.dropout_ratio),         # classifier:add(nn.Dropout(0.1))
-            nn.Linear(512 * 7 * 7, 4096),           # classifier:add(nn.Linear(512,512,false))
+            nn.Linear(512 * 7 * 7, 4096, bias=False),           # classifier:add(nn.Linear(512,512,false))
             nn.ReLU(True),                          # classifier:add(ReLU(true))
             nn.Dropout(self.dropout_ratio),         # classifier:add(nn.Dropout(0.1))
-            nn.Linear(4096, 4096),                  # classifier:add(nn.Linear(512,10,false))
+            nn.Linear(4096, 4096, bias=False),                  # classifier:add(nn.Linear(512,10,false))
             nn.ReLU(True),                          # classifier:add(ReLU(true))
             nn.Dropout(self.dropout_ratio),         # additional dropout
-            nn.Linear(4096, num_classes),           # additional dense layer
+            nn.Linear(4096, num_classes, bias=False),           # additional dense layer
         )
         # self._initialize_weights()
 
