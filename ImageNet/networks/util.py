@@ -36,8 +36,8 @@ class BinOp():
         # count the number of Conv2d and Linear
         count_targets = 0
         for m in model.modules():
-            # if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-            if isinstance(m, nn.Conv2d):
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+            # if isinstance(m, nn.Conv2d):
                 count_targets = count_targets + 1
 
         start_range = 1
