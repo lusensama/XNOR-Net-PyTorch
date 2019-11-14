@@ -117,11 +117,12 @@ class VGG_15(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Linear(4096, 1000, bias=False)  # Linear,
+
         )
 
     def forward(self, x):
         x = self.features(x)
-        x.view(x.size(0), -1)
+        x = x.view(x.size(0), -1)
         x = self.classifier(x)
         return x
 
