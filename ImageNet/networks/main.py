@@ -122,10 +122,11 @@ def main():
             # TODO: Temporary remake
             # args.start_epoch = 0
             # best_prec1 = 0.0
+            model.features = torch.nn.DataParallel(model.features)
             try:
                 args.start_epoch = checkpoint['epoch']
                 best_prec1 = checkpoint['best_prec1']
-                model.features = torch.nn.DataParallel(model.features)
+
                 model.load_state_dict(checkpoint['state_dict'])
             except KeyError:
                 model.load_state_dict(checkpoint)
