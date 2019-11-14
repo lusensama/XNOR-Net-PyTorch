@@ -222,9 +222,10 @@ def main():
 
         # torchvision.set_image_backend('accimage')
 
-        train_dataset = datasets.ImageFolder(
-                traindir,
-                transforms.Compose([
+        train_dataset = datasets.ImageNet(
+                args.data,
+                split='train',
+                transform=transforms.Compose([
                     transforms.Resize((256, 256)),
                     transforms.RandomCrop(input_size),
                     transforms.RandomHorizontalFlip(),

@@ -136,6 +136,7 @@ def vgg_15(pretrained=False, **kwargs):
     model = VGG_15(**kwargs)
     if pretrained:
         model_path = 'model_list/vgg15_gpu.pth'
+        print('loading pre-trained model from '+model_path)
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
         # from collections import OrderedDict
