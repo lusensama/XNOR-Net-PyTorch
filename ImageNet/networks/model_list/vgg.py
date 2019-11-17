@@ -153,6 +153,122 @@ def vgg_15(pretrained=False, **kwargs):
         model.load_state_dict(pretrained_model, strict=True)
     return model
 
+class BinActive(torch.autograd.Function):
+    '''
+    Binarize the input activations and calculate the mean across channel dimension.
+    '''
+
+    @staticmethod
+    def forward(self, input):
+        self.save_for_backward(input)
+        size = input.size()
+        input = input.sign()
+        return input
+
+    @staticmethod
+    def backward(self, grad_output):
+        input, = self.saved_tensors
+        grad_input = grad_output.clone()
+        grad_input[input.ge(1)] = 0
+        grad_input[input.le(-1)] = 0
+        return grad_input
+
+
+class BinConv2d(nn.Module): # change the name of BinConv2d
+    def __init__(self, input_channels, output_channels,
+            kernel_size=-1, stride=-1, dropout=0.0,
+            bias=True):
+        super(BinConv2d, self).__init__()
+        self.layer_type = 'BinConv2d'
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.dropout_ratio = dropout
+
+        if dropout!=0:
+            self.dropout = nn.Dropout(dropout)
+        self.bn = nn.BatchNorm2d(input_channels, eps=1e-4, momentum=0.1, affine=True)
+        self.conv = nn.Conv2d(input_channels, output_channels, (3, 3), (1, 1), (1, 1), bias=bias)
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        x = self.bn(x)
+        binAct = BinActive.apply
+        x = binAct(x)
+        x = self.conv(x)
+        return x
+
+class VGG15_bn_xnor(nn.Module):
+    def __init__(self,  dr=0.1, num_classes=1000):
+        super(VGG15_bn_xnor, self).__init__()
+        self.dr=dr
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, (3, 3), (1, 1), (1, 1)),
+            nn.BatchNorm2d(64, eps=1e-4, momentum=0.1, affine=True),
+            nn.ReLU(True),
+            BinConv2d(64, 64, kernel_size=3, stride=1),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            BinConv2d(64, 128, kernel_size=3, stride=1),
+            BinConv2d(128, 128, kernel_size=3, stride=1),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            BinConv2d(128, 256, kernel_size=3, stride=1),
+            BinConv2d(256, 256, kernel_size=3, stride=1),
+            BinConv2d(256, 256, kernel_size=3, stride=1),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            BinConv2d(256, 512, kernel_size=3, stride=1),
+            BinConv2d(512, 512, kernel_size=3, stride=1),
+            BinConv2d(512, 512, kernel_size=3, stride=1),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            BinConv2d(512, 512, kernel_size=3, stride=1),
+            BinConv2d(512, 512, kernel_size=3, stride=1),
+            BinConv2d(512, 512, kernel_size=3, stride=1),
+            # nn.Dropout(dr),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.AdaptiveAvgPool2d((7, 7))
+        )
+        self.classifier = nn.Sequential(
+
+            nn.Linear(512 * 7 * 7, 4096),  # Linear,
+            nn.ReLU(True),
+            nn.Dropout(dr),
+            nn.Linear(4096, 1000)  # Linear,
+
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier(x)
+        return x
+
+def vgg15_bn_XNOR(pretrained=False, **kwargs):
+    r"""AlexNet model architecture from the
+    `"One weird trick..." <https://arxiv.org/abs/1404.5997>`_ paper.
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
+    model = VGG15_bn_xnor(**kwargs)
+    if pretrained:
+        model_path = 'vgg15_gpu.pth'
+        # model_path = 'alexnet_XNOR_cpu.pth'
+        pretrained_model = torch.load(model_path)
+        # from collections import OrderedDict
+        # new_state_dict = OrderedDict()
+        # for k, v in pretrained_model.items():
+        #     name = k.replace(".module", "")  # remove `module.`
+        #     new_state_dict[name] = v
+        # load params
+
+        # model.load_state_dict(pretrained_model, strict=True)
+        model.features = torch.nn.DataParallel(model.features)
+        model.cuda()
+        # torch.save(model.state_dict(), 'vgg15_gpu.pth')
+        model.load_state_dict(pretrained_model, strict=True)
+    return model
 
 def vgg_net(pretrained=False, **kwargs):
     r"""AlexNet model architecture from the

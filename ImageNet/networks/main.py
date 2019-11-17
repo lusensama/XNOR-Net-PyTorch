@@ -86,8 +86,11 @@ def main():
     elif args.arch=='vgg16':
         model = model_list.vgg_net(pretrained=args.pretrained)
         input_size = 227
-    elif args.arch=='vgg15':
+    elif args.arch=='vgg15_bwn':
         model = model_list.vgg_15(pretrained=args.pretrained)
+        input_size = 227
+    elif args.arch=='vgg15_bn_XNOR':
+        model = model_list.vgg15_bn_XNOR(pretrained=args.pretrained)
         input_size = 227
 
     else:
@@ -95,7 +98,7 @@ def main():
 
     if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
         pass
-        # model.features = torch.nn.DataParallel(model.features)
+        model.features = torch.nn.DataParallel(model.features)
         model.cuda()
     else:
         model = torch.nn.DataParallel(model).cuda()
