@@ -282,6 +282,7 @@ def main():
         }, is_best, filename=args.arch+'_')
         writer.add_scalar('top1 accuracy', prec1, epoch)
         writer.add_scalar('top5 accuracy', prec5, epoch)
+        writer.add_scalar('learning rate', args.lr, epoch)
     print(val_prec_list)
 # def main():
 #
