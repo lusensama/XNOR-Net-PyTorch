@@ -135,7 +135,7 @@ def vgg_15(pretrained=False, **kwargs):
     """
     model = VGG_15(**kwargs)
     if pretrained:
-        model_path = 'model_list/vgg15_gpu.pth'
+        model_path = 'model_list/vgg15_61.pth.tar'
         print('loading pre-trained model from '+model_path)
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
@@ -150,7 +150,7 @@ def vgg_15(pretrained=False, **kwargs):
         model.features = torch.nn.DataParallel(model.features)
         model.cuda()
         # torch.save(model.state_dict(), 'vgg15_gpu.pth')
-        model.load_state_dict(pretrained_model, strict=True)
+        model.load_state_dict(pretrained_model['state_dict'], strict=True)
     return model
 
 class BinActive(torch.autograd.Function):

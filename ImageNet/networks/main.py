@@ -125,7 +125,7 @@ def main():
             # TODO: Temporary remake
             # args.start_epoch = 0
             # best_prec1 = 0.0
-            model.features = torch.nn.DataParallel(model.features)
+            # model.features = torch.nn.DataParallel(model.features)
             try:
                 args.start_epoch = checkpoint['epoch']
                 best_prec1 = checkpoint['best_prec1']
@@ -518,8 +518,8 @@ def validate(val_loader, model, criterion):
     top5 = AverageMeter()
 
     # switch to evaluate mode
+    # model.train()
     model.eval()
-
     end = time.time()
     bin_op.binarization()
     for i, (input, target) in enumerate(val_loader):
