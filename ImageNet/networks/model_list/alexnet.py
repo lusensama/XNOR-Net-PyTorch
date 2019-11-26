@@ -121,6 +121,7 @@ def alexnet(pretrained=False, **kwargs):
     if pretrained:
         model_path = 'model_list/alexnet_checkpoint.pth.tar'
         print('loading pretrianed model at ' + model_path)
+
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
         model.features = torch.nn.DataParallel(model.features)

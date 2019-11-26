@@ -257,6 +257,9 @@ def main():
     bin_op = util.BinOp(model)
 
     if args.evaluate:
+        bin_op.binarization()
+        save_checkpoint(model.state_dict(), False, 'vgg_binarized')
+        bin_op.restore()
         validate(val_loader, model, criterion)
         return
     val_prec_list = []

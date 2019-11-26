@@ -58,7 +58,20 @@ class Vgg(nn.Module):
             nn.Dropout(self.dropout_ratio),  # additional dropout
             nn.Linear(4096, num_classes, bias=False),  # additional dense layer
         )
-        # self._initialize_weights()
+        self._initialize_weights()
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                # nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.normal_(m.weight, 0, 0.01)
+                # nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         x = self.features(x)
@@ -75,14 +88,14 @@ class VGG_15(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
+            nn.MaxPool2d((2, 2), (2, 2)),
             nn.ReLU(),
-            nn.AvgPool2d((2, 2), (2, 2)),
             nn.Conv2d(64, 128, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(128, 128, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
+            nn.MaxPool2d((2, 2), (2, 2)),
             nn.ReLU(),
-            nn.AvgPool2d((2, 2), (2, 2)),
             nn.Conv2d(128, 256, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
@@ -90,8 +103,8 @@ class VGG_15(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(256, 256, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
+            nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
             nn.ReLU(),
-            nn.AvgPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
             nn.Conv2d(256, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
@@ -99,8 +112,8 @@ class VGG_15(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
+            nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
             nn.ReLU(),
-            nn.AvgPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
             nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
@@ -108,8 +121,8 @@ class VGG_15(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
-            nn.ReLU(),
-            nn.AvgPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True)
+            nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),
+            nn.ReLU()
         )
         self.classifier = nn.Sequential(
             nn.Dropout(0.1),
@@ -117,7 +130,6 @@ class VGG_15(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Linear(4096, 1000, bias=False)  # Linear,
-
         )
 
     def forward(self, x):
