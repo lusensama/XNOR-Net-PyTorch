@@ -83,7 +83,8 @@ def test():
 
 
 def adjust_learning_rate(optimizer, epoch):
-    update_list = [30, 60, 90, 120, 150, 180]
+    update_list = [60, 90, 120, 150, 180]
+    # update_list = [81, 122]
     if epoch in update_list:
         for param_group in optimizer.param_groups:
             param_group['lr'] = param_group['lr'] * 0.5
@@ -122,7 +123,7 @@ if __name__ == '__main__':
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
-    trainset = torchvision.datasets.CIFAR100('/data', train=True,
+    trainset = torchvision.datasets.CIFAR100('./data', train=True,
                                              transform=transforms.Compose([
                                                  transforms.RandomCrop(32, padding=4),
                                                  transforms.RandomHorizontalFlip(0.5),
@@ -132,7 +133,7 @@ if __name__ == '__main__':
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
                                               shuffle=True, num_workers=2)
 
-    testset = torchvision.datasets.CIFAR100('/data', train=False,
+    testset = torchvision.datasets.CIFAR100('./data', train=False,
                                             transform=transforms.Compose([
                                                 transforms.ToTensor(),
                                                 normalize, ]),
@@ -152,6 +153,8 @@ if __name__ == '__main__':
         model = models.alexnet_xnor()
     elif args.arch == 'vgg15_max':
         model = models.vgg_15_max()
+    elif args.arch == 'vgg15_xnor':
+        model = models.vgg_15_xnor()
     else:
         raise Exception(args.arch + ' is currently not supported')
 
@@ -166,13 +169,14 @@ if __name__ == '__main__':
     else:
         print('==> Load pretrained model form', args.pretrained, '...')
         pretrained_model = torch.load(args.pretrained)
-        best_acc = pretrained_model['best_acc']
+        best_acc = pretrained_model['best_acc1']
 
 
+
+        model.features = torch.nn.DataParallel(model.features)
+        model.load_state_dict(pretrained_model['state_dict'])
         model.cuda()
         model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
-        # model.features = torch.nn.DataParallel(model.features)
-        model.load_state_dict(pretrained_model['state_dict'])
 
 
 
@@ -205,7 +209,7 @@ if __name__ == '__main__':
         exit(0)
 
     # start training
-    for epoch in range(1, 320):
+    for epoch in range(1, 200):
         adjust_learning_rate(optimizer, epoch)
         train(epoch)
         test()
