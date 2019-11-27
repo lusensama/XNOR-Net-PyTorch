@@ -183,7 +183,7 @@ class VGG_15_XNOR(nn.Module):
             BinConv2d(512, 512, kernel_size=3, stride=1),
             # nn.Dropout(dr),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.AdaptiveAvgPool2d((7, 7))
+            # nn.AdaptiveAvgPool2d((7, 7))
         )
         self.classifier = nn.Sequential(
 
