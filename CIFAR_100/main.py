@@ -171,7 +171,7 @@ if __name__ == '__main__':
         pretrained_model = torch.load(args.pretrained)
         try:
             best_acc = pretrained_model['best_acc1']
-        except KeyError():
+        except KeyError:
             best_acc = pretrained_model['best_acc']
 
 
