@@ -154,7 +154,7 @@ if __name__ == '__main__':
     elif args.arch == 'vgg15_max':
         model = models.vgg_15_max()
     elif args.arch == 'vgg15_xnor':
-        model = models.vgg_15_xnor()
+        model = models.vgg_15_xnor(args.pretrained)
     else:
         raise Exception(args.arch + ' is currently not supported')
 
@@ -177,9 +177,9 @@ if __name__ == '__main__':
 
 
         # model.features = torch.nn.DataParallel(model.features)
-        model.load_state_dict(pretrained_model['state_dict'])
-        model.cuda()
-        model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
+        # model.load_state_dict(pretrained_model['state_dict'])
+        # model.cuda()
+        # model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
 
 
 
