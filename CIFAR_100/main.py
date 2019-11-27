@@ -174,10 +174,9 @@ if __name__ == '__main__':
         except KeyError:
             best_acc = pretrained_model['best_acc']
 
-
-
-        # model.features = torch.nn.DataParallel(model.features)
         model.cuda()
+        model.features = torch.nn.DataParallel(model.features)
+
         model.load_state_dict(pretrained_model['state_dict'])
 
         # model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
