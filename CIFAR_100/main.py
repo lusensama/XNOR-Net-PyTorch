@@ -198,7 +198,7 @@ if __name__ == '__main__':
                     'weight_decay': 1e-4}]
 
     optimizer = optim.Adam(params, lr=float(args.lr),
-                           weight_decay=1e-4
+                           weight_decay=1e-7
                            # betas=(0.0, 0.99999)
                            )
     criterion = nn.CrossEntropyLoss()
