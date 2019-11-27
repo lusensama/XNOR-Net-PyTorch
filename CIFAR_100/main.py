@@ -175,7 +175,7 @@ if __name__ == '__main__':
             best_acc = pretrained_model['best_acc']
 
         model.cuda()
-        model.features = torch.nn.DataParallel(model.features)
+        model = torch.nn.DataParallel(model)
 
         model.load_state_dict(pretrained_model['state_dict'])
 
