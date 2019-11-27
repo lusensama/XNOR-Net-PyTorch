@@ -224,7 +224,7 @@ def vgg_15_xnor(pretrained=False, **kwargs):
     """
     model = VGG_15_XNOR(**kwargs)
     if pretrained:
-        model_path = 'vgg15xnor.pth.tar'
+        model_path = 'vgg15_xnor_cifar100.pth.tar'
         print('loading pre-trained model from '+model_path)
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
