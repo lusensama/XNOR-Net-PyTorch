@@ -9,11 +9,11 @@ import argparse
 import util
 import torch.nn as nn
 import torch.optim as optim
-
+from torch.utils.tensorboard import SummaryWriter
 import models
 
-
-def save_state(model, best_acc, arch):
+# writer = SummaryWriter('runs/pretrained')
+def save_state(model, best_acc, arch, pretrained):
     print('==> Saving model ...')
     state = {
         'best_acc': best_acc,
@@ -23,11 +23,12 @@ def save_state(model, best_acc, arch):
     #     if 'module' in key:
     #         state['state_dict'][key.replace('module.', '')] = \
     #             state['state_dict'].pop(key)
-    torch.save(state, 'models/{}_cifar100.pth.tar'.format(arch))
+    torch.save(state, 'models/{}_cifar100_from_{}.pth.tar'.format(arch, 'pretrained' if pretrained else 'scratch'))
 
 
 def train(epoch):
     model.train()
+
     for batch_idx, (data, target) in enumerate(trainloader):
         # process the weights including binarization
         bin_op.binarization()
@@ -51,10 +52,11 @@ def train(epoch):
                 epoch, batch_idx * len(data), len(trainloader.dataset),
                        100. * batch_idx / len(trainloader), loss.data.item(),
                 optimizer.param_groups[0]['lr']))
+
     return
 
 
-def test():
+def test(epc, writer):
     global best_acc
     model.eval()
     test_loss = 0
@@ -72,18 +74,23 @@ def test():
 
     if acc > best_acc:
         best_acc = acc
-        save_state(model, best_acc, args.arch)
-
+        save_state(model, best_acc, args.arch, args.pretrained)
+    else:
+        save_state(model, best_acc, 'checkpoint_'+ args.arch, args.pretrained)
     test_loss /= len(testloader.dataset)
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+    print('\nTest set: Average loss: {:.4f} , Accuracy: {}/{} ({:.2f}%)'.format(
         test_loss * 128., correct, len(testloader.dataset),
         100. * float(correct) / len(testloader.dataset)))
     print('Best Accuracy: {:.2f}%\n'.format(best_acc))
+    writer.add_scalar('{}_average_loss'.format(args.arch), test_loss, epc)
+    writer.add_scalar('{}_test_accuracy'.format(args.arch), 100. * float(correct) / len(testloader.dataset), epc)
+    writer.add_scalar('{}_learning_rate'.format(args.arch), float(args.lr), epc)
+
     return
 
 
 def adjust_learning_rate(optimizer, epoch):
-    update_list = [60, 90, 120, 150, 180]
+    update_list = [30, 60, 90, 120, 150, 180]
     # update_list = [81, 122]
     if epoch in update_list:
         for param_group in optimizer.param_groups:
@@ -114,7 +121,10 @@ if __name__ == '__main__':
     # set the seed
     torch.manual_seed(1)
     torch.cuda.manual_seed(1)
-
+    if args.pretrained:
+        writer = SummaryWriter('runs/pretrained')
+    else:
+        writer = SummaryWriter('runs/scratch')
     # # prepare the data
     # if not os.path.isfile(args.data + '/train_data'):
     #     # check the data path
@@ -174,9 +184,10 @@ if __name__ == '__main__':
         except KeyError:
             best_acc = pretrained_model['best_acc']
 
-        model.cuda()
-        model = torch.nn.DataParallel(model)
 
+
+        model.features = torch.nn.DataParallel(model.features)
+        model.cuda()
         model.load_state_dict(pretrained_model['state_dict'])
 
         # model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
@@ -198,7 +209,7 @@ if __name__ == '__main__':
                     'weight_decay': 1e-4}]
 
     optimizer = optim.Adam(params, lr=float(args.lr),
-                           weight_decay=1e-7
+                           weight_decay=5e-4
                            # betas=(0.0, 0.99999)
                            )
     criterion = nn.CrossEntropyLoss()
@@ -215,4 +226,4 @@ if __name__ == '__main__':
     for epoch in range(1, 200):
         adjust_learning_rate(optimizer, epoch)
         train(epoch)
-        test()
+        test(epoch, writer)
