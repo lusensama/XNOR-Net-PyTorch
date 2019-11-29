@@ -196,6 +196,7 @@ if __name__ == '__main__':
 
 
     if not isinstance(model, nn.DataParallel):
+        'not instance of DataPrallel'
         model.cuda()
         model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
     print(model)
