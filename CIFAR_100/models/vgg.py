@@ -92,7 +92,7 @@ def vgg_15_max(pretrained=False, **kwargs):
     """
     model = VGG_15_max(**kwargs)
     if pretrained:
-        model_path = 'vgg15max.pth.tar'
+        model_path = 'vgg15m_cifar100model_best.pth.tar'
         print('loading pre-trained model from '+model_path)
         # model_path = 'alexnet_XNOR_cpu.pth'
         pretrained_model = torch.load(model_path)
@@ -154,7 +154,7 @@ class BinConv2d(nn.Module): # change the name of BinConv2d
         return x
 
 class VGG_15_XNOR(nn.Module):
-    def __init__(self,  dr=0.1, num_classes=1000):
+    def __init__(self,  dr=0.1, num_classes=100):
         super(VGG_15_XNOR, self).__init__()
         self.dr=dr
         self.features = nn.Sequential(
@@ -190,7 +190,7 @@ class VGG_15_XNOR(nn.Module):
             nn.Linear(512, 4096),  # Linear,
             nn.ReLU(True),
             nn.Dropout(dr),
-            nn.Linear(4096, 100)  # Linear,
+            nn.Linear(4096, num_classes)  # Linear,
 
         )
 

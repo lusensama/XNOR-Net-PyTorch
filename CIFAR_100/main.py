@@ -90,7 +90,7 @@ def test(epc, writer):
 
 
 def adjust_learning_rate(optimizer, epoch):
-    update_list = [30, 60, 90, 120, 150, 180]
+    update_list = [60, 90, 120, 150, 180]
     # update_list = [81, 122]
     if epoch in update_list:
         for param_group in optimizer.param_groups:
@@ -209,7 +209,8 @@ if __name__ == '__main__':
                     'weight_decay': 1e-4}]
 
     optimizer = optim.Adam(params, lr=float(args.lr),
-                           weight_decay=1e-5
+                           weight_decay=5e-4 # pretrained
+                           # weight_decay=1e-5 # scratch
                            # betas=(0.0, 0.99999)
                            )
     criterion = nn.CrossEntropyLoss()
