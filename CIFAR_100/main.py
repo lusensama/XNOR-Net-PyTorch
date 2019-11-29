@@ -186,7 +186,8 @@ if __name__ == '__main__':
 
 
 
-        model.features = torch.nn.DataParallel(model.features)
+        # model.features = torch.nn.DataParallel(model.features)
+        model = torch.nn.DataParallel(model)
         model.cuda()
         model.load_state_dict(pretrained_model['state_dict'])
 
