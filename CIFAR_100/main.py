@@ -195,10 +195,10 @@ if __name__ == '__main__':
 
 
 
-    if not isinstance(model, nn.DataParallel):
-        print('============Not an instance of DataPrallel===========')
-        model.cuda()
-        model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
+    # if not isinstance(model, nn.DataParallel):
+    #     print('============Not an instance of DataPrallel===========')
+    #     model.cuda()
+    #     model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
     print(model)
 
     # define solver and criterion
