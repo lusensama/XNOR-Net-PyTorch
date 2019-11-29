@@ -90,7 +90,7 @@ def test(epc, writer):
 
 
 def adjust_learning_rate(optimizer, epoch):
-    update_list = [60, 90, 120, 150, 180]
+    update_list = [30, 60, 90, 120, 150, 180]
     # update_list = [81, 122]
     if epoch in update_list:
         for param_group in optimizer.param_groups:
@@ -115,6 +115,11 @@ if __name__ == '__main__':
                         help='evaluate the model')
     parser.add_argument('-b', '--batch-size', default=128, type=int,
                         metavar='N', help='mini-batch size (default: 128)')
+    parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
+                        help='momentum')
+    parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
+                        metavar='W', help='weight decay (default: 1e-4)',
+                        dest='weight_decay')
     args = parser.parse_args()
     print('==> Options:', args)
 
@@ -185,7 +190,6 @@ if __name__ == '__main__':
             best_acc = pretrained_model['best_acc']
 
 
-
         model.features = torch.nn.DataParallel(model.features)
         # model = torch.nn.DataParallel(model)
         model.cuda('cuda:0')
@@ -211,8 +215,8 @@ if __name__ == '__main__':
                     'weight_decay': 1e-4}]
 
     optimizer = optim.Adam(params, lr=float(args.lr),
-                           weight_decay=5e-4 # pretrained
-                           # weight_decay=1e-5 # scratch
+                           # weight_decay=5e-4 # pretrained
+                           weight_decay=args.W # scratch
                            # betas=(0.0, 0.99999)
                            )
     criterion = nn.CrossEntropyLoss()
@@ -222,7 +226,7 @@ if __name__ == '__main__':
 
     # do the evaluation if specified
     if args.evaluate:
-        test()
+        test(0, None)
         exit(0)
 
     # start training
