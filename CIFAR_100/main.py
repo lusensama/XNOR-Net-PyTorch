@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
         model.features = torch.nn.DataParallel(model.features)
         # model = torch.nn.DataParallel(model)
-        model.cuda('0')
+        model.cuda('cuda:0')
         model.load_state_dict(pretrained_model['state_dict'])
         # model.cuda('0')
         # model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
