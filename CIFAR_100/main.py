@@ -177,6 +177,9 @@ if __name__ == '__main__':
     if not args.pretrained:
         print('==> Initializing model parameters ...')
         best_acc = 0
+        model.features = torch.nn.DataParallel(model.features)
+        # model = torch.nn.DataParallel(model)
+        model.cuda('cuda:0')
         for m in model.modules():
             if isinstance(m, nn.Conv2d):
                 m.weight.data.normal_(0, 0.05)
