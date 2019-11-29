@@ -2,23 +2,23 @@ import torch
 import torch.nn as nn
 
 class VGG_15_max(nn.Module):
-    def __init__(self,  dr=0.1, num_classes=1000):
+    def __init__(self,  dr=0.1, num_classes=100):
         super(VGG_15_max, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
-
-            nn.ReLU(),
             nn.MaxPool2d((2, 2), (2, 2)),
+            nn.ReLU(),
+
             nn.Conv2d(64, 128, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(128, 128, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
-
-            nn.ReLU(),
             nn.MaxPool2d((2, 2), (2, 2)),
+            nn.ReLU(),
+
             nn.Conv2d(128, 256, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
@@ -26,9 +26,9 @@ class VGG_15_max(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(256, 256, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
-
-            nn.ReLU(),
             nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
+            nn.ReLU(),
+
             nn.Conv2d(256, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
@@ -36,19 +36,19 @@ class VGG_15_max(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
-
-            nn.ReLU(),
             nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
-            nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
 
+            nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
-            nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True)
+            nn.Dropout(0.1),
+            nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
+            nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),
+            nn.ReLU()
+
         )
         self.classifier = nn.Sequential(
             nn.Dropout(0.1),
@@ -58,7 +58,7 @@ class VGG_15_max(nn.Module):
             # nn.Linear(4096, 4096, bias=False),  # Linear,
             # nn.ReLU(),
             # nn.Dropout(0.1),
-            nn.Linear(4096, 100, bias=False)  # Linear,
+            nn.Linear(4096, num_classes, bias=False)  # Linear,
         )
 
         self._initialize_weights()
