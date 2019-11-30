@@ -142,7 +142,7 @@ class BinConv2d(nn.Module): # change the name of BinConv2d
 
         if dropout!=0:
             self.dropout = nn.Dropout(dropout)
-        self.bn = nn.BatchNorm2d(input_channels, eps=1e-4, momentum=0.9, affine=True)
+        self.bn = nn.BatchNorm2d(input_channels, eps=1e-4, momentum=0.1, affine=True)
         self.conv = nn.Conv2d(input_channels, output_channels, (3, 3), (1, 1), (1, 1), bias=bias)
         self.relu = nn.ReLU(inplace=True)
 
@@ -159,7 +159,7 @@ class VGG_15_XNOR(nn.Module):
         self.dr=dr
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, (3, 3), (1, 1), (1, 1)),
-            nn.BatchNorm2d(64, eps=1e-4, momentum=0.9, affine=True),
+            nn.BatchNorm2d(64, eps=1e-4, momentum=0.1, affine=True),
             nn.ReLU(True),
             BinConv2d(64, 64, kernel_size=3, stride=1),
             nn.MaxPool2d(kernel_size=2, stride=2),
