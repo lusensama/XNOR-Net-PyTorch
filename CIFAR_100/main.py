@@ -55,6 +55,33 @@ def train(epoch):
 
     return
 
+# vgg15m_cifar100model_best67.7.pth.tar
+def evaluate(save_binary = False):
+    global best_acc
+    model.eval()
+    test_loss = 0
+    correct = 0
+    bin_op.binarization()
+    for data, target in testloader:
+        data, target = Variable(data.cuda()), Variable(target.cuda())
+
+        output = model(data)
+        test_loss += criterion(output, target).data.item()
+        pred = output.data.max(1, keepdim=True)[1]
+        correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+    if save_binary:
+        save_state(model, best_acc, 'binarized_'+args.arch, args.pretrained)
+    bin_op.restore()
+    # if acc > best_acc:
+    #     best_acc = acc
+    #     save_state(model, best_acc, args.arch, args.pretrained)
+    # else:
+    #     save_state(model, best_acc, 'checkpoint_' + args.arch, args.pretrained)
+    test_loss /= len(testloader.dataset)
+    print('\nTest set: Average loss: {:.4f} , Accuracy: {}/{} ({:.2f}%)'.format(
+        test_loss * 128., correct, len(testloader.dataset),
+        100. * float(correct) / len(testloader.dataset)))
+    print('Best Accuracy: {:.2f}%\n'.format(best_acc))
 
 def test(epc, writer):
     global best_acc
@@ -229,7 +256,7 @@ if __name__ == '__main__':
 
     # do the evaluation if specified
     if args.evaluate:
-        test(0, None)
+        evaluate(True)
         exit(0)
 
     # start training
