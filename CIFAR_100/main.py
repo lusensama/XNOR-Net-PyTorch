@@ -199,6 +199,8 @@ if __name__ == '__main__':
         model = models.alexnet_xnor()
     elif args.arch == 'vgg15_max':
         model = models.vgg_15_max()
+    elif args.arch == 'vgg15_avg':
+        model = models.vgg_15_avg()
     elif args.arch == 'vgg15_xnor':
         model = models.vgg_15_xnor()
     else:
