@@ -14,6 +14,7 @@ import models
 
 # writer = SummaryWriter('runs/pretrained')
 def save_state(model, best_acc, arch, pretrained):
+
     print('==> Saving model ...')
     state = {
         'best_acc': best_acc,
@@ -23,7 +24,7 @@ def save_state(model, best_acc, arch, pretrained):
     #     if 'module' in key:
     #         state['state_dict'][key.replace('module.', '')] = \
     #             state['state_dict'].pop(key)
-    torch.save(state, 'models/{}_cifar100_from_{}.pth.tar'.format(arch, 'pretrained' if pretrained else 'scratch'))
+    torch.save(state, '{}/{}_cifar100_from_{}.pth.tar'.format(args.workdir, arch, 'pretrained' if pretrained else 'scratch'))
 
 
 def train(epoch):
@@ -122,6 +123,7 @@ def adjust_learning_rate(optimizer, epoch):
     if epoch in update_list:
         for param_group in optimizer.param_groups:
             param_group['lr'] = param_group['lr'] * 0.5
+            param_group['weight_decay'] = 0
     return
 
 
@@ -147,6 +149,8 @@ if __name__ == '__main__':
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)',
                         dest='weight_decay')
+    parser.add_argument('--workdir', action='store', default=None,
+                        help='the path to store everything')
     args = parser.parse_args()
     print('==> Options:', args)
 
@@ -154,9 +158,9 @@ if __name__ == '__main__':
     torch.manual_seed(1)
     torch.cuda.manual_seed(1)
     if args.pretrained:
-        writer = SummaryWriter('runs/pretrained')
+        writer = SummaryWriter(args.workdir + '/' +'runs/pretrained')
     else:
-        writer = SummaryWriter('runs/scratch')
+        writer = SummaryWriter(args.workdir + '/' + 'runs/scratch')
     # # prepare the data
     # if not os.path.isfile(args.data + '/train_data'):
     #     # check the data path
@@ -242,7 +246,7 @@ if __name__ == '__main__':
 
     for key, value in param_dict.items():
         params += [{'params': [value], 'lr': base_lr,
-                    'weight_decay': 1e-4}]
+                    'weight_decay': float(args.weight_decay)}]
 
     optimizer = optim.Adam(params, lr=float(args.lr),
                            # weight_decay=5e-4 # pretrained
