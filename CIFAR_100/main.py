@@ -222,10 +222,11 @@ if __name__ == '__main__':
     else:
         print('==> Load pretrained model form', args.pretrained, '...')
         pretrained_model = torch.load(args.pretrained)
-        try:
-            best_acc = pretrained_model['best_acc1']
-        except KeyError:
-            best_acc = pretrained_model['best_acc']
+        best_acc = 0
+        # try:
+        #     best_acc = pretrained_model['best_acc1']
+        # except KeyError:
+        #     best_acc = pretrained_model['best_acc']
 
 
         model.features = torch.nn.DataParallel(model.features)
