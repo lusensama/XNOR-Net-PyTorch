@@ -308,9 +308,9 @@ def vgg_15_avg2(pretrained=False, dataset='cifar100' , **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     if dataset == 'imagenet':
-        model = VGG_15_avg(num_classes=1000, **kwargs)
+        model = VGG_15_avg2(num_classes=1000, **kwargs)
     elif dataset == 'cifar100':
-        model = VGG_15_avg(num_classes=100, linea=512,**kwargs)
+        model = VGG_15_avg2(num_classes=100, linea=512,**kwargs)
     if pretrained:
         model_path = 'vgg15avg.pth.tar'
         print('loading pre-trained model from '+model_path)
