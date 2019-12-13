@@ -257,7 +257,7 @@ class VGG_15_avg2(nn.Module):
             nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.AvgPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
             nn.ReLU(),
-            nn.AvgPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),  # AvgPool2d,
+
             nn.Conv2d(512, 512, (3, 3), (1, 1), (1, 1), 1, 1, bias=False),
             nn.ReLU(),
             nn.Dropout(0.1),
