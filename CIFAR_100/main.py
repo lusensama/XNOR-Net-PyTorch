@@ -199,10 +199,12 @@ if __name__ == '__main__':
         model = models.alexnet_xnor()
     elif args.arch == 'vgg15_max':
         model = models.vgg_15_max()
+    elif args.arch == 'vgg15_maxa':
+        model = models.vgg_15_maxa()
     elif args.arch == 'vgg15_avg':
         model = models.vgg_15_avg()
     elif args.arch == 'vgg15_avg_before':
-        model = models.vgg_15_avg2()
+        model = models.vgg_15_avgb()
     elif args.arch == 'vgg15_xnor':
         model = models.vgg_15_xnor()
     else:
