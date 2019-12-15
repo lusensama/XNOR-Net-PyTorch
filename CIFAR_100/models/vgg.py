@@ -468,7 +468,7 @@ class VGG_15_maxa(nn.Module):
         x = self.classifier(x)
         return x
 
-def vgg_15_maxa(pretrained=False,dataset='imagenet',**kwargs):
+def vgg_15_maxa(pretrained=False,dataset='cifar100',**kwargs):
     r"""AlexNet model architecture from the
     `"One weird trick..." <https://arxiv.org/abs/1404.5997>`_ paper.
 
