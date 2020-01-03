@@ -267,7 +267,7 @@ if __name__ == '__main__':
 
     # do the evaluation if specified
     if args.evaluate:
-        evaluate(True)
+        evaluate(False)
         exit(0)
 
     # start training

@@ -45,11 +45,11 @@ parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
 parser.add_argument('-b', '--batch-size', default=128, type=int,
                     metavar='N', help='mini-batch size (default: 128)')
-parser.add_argument('--lr', '--learning-rate', default=0.0001, type=float,
+parser.add_argument('--lr', '--learning-rate', default=5e-4, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.90, type=float, metavar='M',
                     help='momentum')
-parser.add_argument('--weight-decay', '--wd', default=1e-6, type=float,
+parser.add_argument('--weight-decay', '--wd', default=5e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-5)')
 parser.add_argument('--print-freq', '-p', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
@@ -57,14 +57,16 @@ parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
-parser.add_argument('--pretrained', dest='pretrained', action='store_true',
-                    default=False, help='use pre-trained model')
+parser.add_argument('--pretrained', action='store', default=None,
+                    help='the path to the pretrained model')
 parser.add_argument('--world-size', default=1, type=int,
                     help='number of distributed processes')
 parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
                     help='url used to set up distributed training')
 parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
+parser.add_argument('--workdir', action='store', default=None,
+                    help='the path to store everything')
 
 best_prec1 = 0
 
@@ -82,17 +84,19 @@ def main():
     # create model
     if args.arch=='alexnet':
         model = model_list.alexnet(pretrained=args.pretrained)
-        input_size = 227
+        input_size = 224
     elif args.arch=='vgg16':
         model = model_list.vgg_net(pretrained=args.pretrained)
-        input_size = 227
+        input_size = 224
     elif args.arch=='vgg15_bwn':
         model = model_list.vgg_15(pretrained=args.pretrained)
-        input_size = 227
+        input_size = 224
     elif args.arch=='vgg15_bn_XNOR':
         model = model_list.vgg15_bn_XNOR(pretrained=args.pretrained)
-        input_size = 227
-
+        input_size = 224
+    elif args.arch=='vgg15ab':
+        model = model_list.vgg15ab(pretrained=args.pretrained)
+        input_size = 224
     else:
         raise Exception('Model not supported yet')
 
@@ -106,7 +110,9 @@ def main():
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
 
-    optimizer = torch.optim.Adam(model.parameters(), args.lr, betas=(0.0, 0.999),
+    optimizer = torch.optim.Adam(model.parameters(), args.lr,
+                                 # betas=(0.0, 0.999),
+
                                 weight_decay=args.weight_decay)
 
     for m in model.modules():
@@ -263,7 +269,7 @@ def main():
         validate(val_loader, model, criterion)
         return
     val_prec_list = []
-    writer = SummaryWriter('runs/loss_graph')
+    writer = SummaryWriter(args.workdir+'/runs/loss_graph')
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(optimizer, epoch)
 
@@ -282,7 +288,7 @@ def main():
             'state_dict': model.state_dict(),
             'best_prec1': best_prec1,
             'optimizer' : optimizer.state_dict(),
-        }, is_best, filename=args.arch+'_')
+        }, is_best, filename='{}/{}_'.format(args.workdir, args.arch))
         writer.add_scalar('top1 accuracy', prec1, epoch)
         writer.add_scalar('top5 accuracy', prec5, epoch)
         writer.add_scalar('learning rate', args.lr, epoch)
@@ -504,11 +510,10 @@ def train(train_loader, model, criterion, optimizer, epoch, writer):
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                    epoch, i, len(train_loader), batch_time=batch_time,
                    data_time=data_time, loss=losses, top1=top1, top5=top5))
-            loss_record=0.0
+            loss_record = 0.0
         gc.collect()
 
 
@@ -561,7 +566,7 @@ def validate(val_loader, model, criterion):
     return top1.avg, top5.avg
 
 
-def save_checkpoint(state, is_best, filename='alexnet_'):
+def save_checkpoint(state, is_best, filename='vgg15'):
     torch.save(state, filename + 'checkpoint.pth.tar')
     if is_best:
         shutil.copyfile(filename + 'checkpoint.pth.tar', filename +'model_best.pth.tar')
@@ -588,10 +593,14 @@ class AverageMeter(object):
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     lr = args.lr
+    update_list = [120, 200, 240, 280]
     print ('Learning rate:', lr)
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
-
+    # for param_group in optimizer.param_groups:
+    #     param_group['lr'] = lr
+    if epoch in update_list:
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = param_group['lr'] * 0.1
+    return
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
