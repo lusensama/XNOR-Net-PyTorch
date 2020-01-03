@@ -100,12 +100,12 @@ def main():
     else:
         raise Exception('Model not supported yet')
 
-    if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-        pass
-        model.features = torch.nn.DataParallel(model.features)
-        model.cuda()
-    else:
-        model = torch.nn.DataParallel(model).cuda()
+    # if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
+    #     pass
+    #     model.features = torch.nn.DataParallel(model.features)
+    #     model.cuda()
+    # else:
+    #     model = torch.nn.DataParallel(model).cuda()
 
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
