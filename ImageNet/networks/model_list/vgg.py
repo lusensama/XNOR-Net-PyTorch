@@ -406,6 +406,6 @@ def vgg15ab(pretrained=None, **kwargs):
         # load params
         model.features = torch.nn.DataParallel(model.features)
         model.cuda()
-        model.load_state_dict(pretrained_model['state_dict'])
+        model.load_state_dict(pretrained_model['state_dict'], strict=True)
         # model.load_state_dict(pretrained_model['state_dict'], strict=True)
     return model

@@ -114,42 +114,42 @@ def main():
                                  # betas=(0.0, 0.999),
 
                                 weight_decay=args.weight_decay)
-
-    for m in model.modules():
-        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-            c = float(m.weight.data[0].nelement())
-            m.weight.data = m.weight.data.normal_(0, 2.0/c)
-        elif isinstance(m, nn.BatchNorm2d):
-            m.weight.data = m.weight.data.zero_().add(1.0)
-            m.bias.data = m.bias.data.zero_()
+# scratch
+#     for m in model.modules():
+#         if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+#             c = float(m.weight.data[0].nelement())
+#             m.weight.data = m.weight.data.normal_(0, 2.0/c)
+#         elif isinstance(m, nn.BatchNorm2d):
+#             m.weight.data = m.weight.data.zero_().add(1.0)
+#             m.bias.data = m.bias.data.zero_()
 
     # optionally resume from a checkpoint
-    if args.resume:
-        if os.path.isfile(args.resume):
-            print("=> loading checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume)
-            # TODO: Temporary remake
-            # args.start_epoch = 0
-            # best_prec1 = 0.0
-            # model.features = torch.nn.DataParallel(model.features)
-            try:
-                args.start_epoch = checkpoint['epoch']
-                best_prec1 = checkpoint['best_prec1']
-
-                model.load_state_dict(checkpoint['state_dict'])
-            except KeyError:
-                model.load_state_dict(checkpoint)
-                pass
-
-
-
-
-            # optimizer.load_state_dict(checkpoint['optimizer'])
-            print("=> loaded checkpoint '{}' (epoch {})"
-                  .format(args.resume, args.start_epoch))
-            del checkpoint
-        else:
-            print("=> no checkpoint found at '{}'".format(args.resume))
+    # if args.resume:
+    #     if os.path.isfile(args.resume):
+    #         print("=> loading checkpoint '{}'".format(args.resume))
+    #         checkpoint = torch.load(args.resume)
+    #         # TODO: Temporary remake
+    #         # args.start_epoch = 0
+    #         # best_prec1 = 0.0
+    #         # model.features = torch.nn.DataParallel(model.features)
+    #         try:
+    #             args.start_epoch = checkpoint['epoch']
+    #             best_prec1 = checkpoint['best_prec1']
+    #
+    #             model.load_state_dict(checkpoint['state_dict'])
+    #         except KeyError:
+    #             model.load_state_dict(checkpoint)
+    #             pass
+    #
+    #
+    #
+    #
+    #         # optimizer.load_state_dict(checkpoint['optimizer'])
+    #         print("=> loaded checkpoint '{}' (epoch {})"
+    #               .format(args.resume, args.start_epoch))
+    #         del checkpoint
+    #     else:
+    #         print("=> no checkpoint found at '{}'".format(args.resume))
 
     cudnn.benchmark = True
 
