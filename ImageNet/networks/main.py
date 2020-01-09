@@ -109,13 +109,13 @@ def main():
 
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
-    optimizer = torch.optim.SGD(model.parameters(), args.lr,
-                                momentum=args.momentum,
-                                 # betas=(0.0, 0.999),
-                                 weight_decay=args.weight_decay)
-    # optimizer = torch.optim.Adam(model.parameters(), args.lr,
+    # optimizer = torch.optim.SGD(model.parameters(), args.lr,
+    #                             momentum=args.momentum,
     #                              # betas=(0.0, 0.999),
-    #                             weight_decay=args.weight_decay)
+    #                              weight_decay=args.weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), args.lr,
+                                 betas=(0.0, 0.999),
+                                weight_decay=args.weight_decay)
 # scratch
 #     for m in model.modules():
 #         if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
