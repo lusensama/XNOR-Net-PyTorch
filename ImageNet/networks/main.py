@@ -129,19 +129,19 @@ def main():
     # if args.resume:
     #     if os.path.isfile(args.resume):
     #         print("=> loading checkpoint '{}'".format(args.resume))
-    #         checkpoint = torch.load(args.resume)
+    checkpoint = torch.load(args.pretrained)
     #         # TODO: Temporary remake
     #         # args.start_epoch = 0
     #         # best_prec1 = 0.0
     #         # model.features = torch.nn.DataParallel(model.features)
-    #         try:
-    #             args.start_epoch = checkpoint['epoch']
-    #             best_prec1 = checkpoint['best_prec1']
-    #
-    #             model.load_state_dict(checkpoint['state_dict'])
-    #         except KeyError:
-    #             model.load_state_dict(checkpoint)
-    #             pass
+    try:
+        args.start_epoch = checkpoint['epoch']
+        best_prec1 = checkpoint['best_prec1']
+
+        model.load_state_dict(checkpoint['state_dict'])
+    except KeyError:
+        model.load_state_dict(checkpoint)
+        pass
     #
     #
     #
