@@ -266,12 +266,12 @@ def main():
     global bin_op
     bin_op = util.BinOp(model)
 
-    if args.binarize:
-        bin_op.binarization()
-        save_checkpoint(model.state_dict(), False, filename='{}/{}_bin_'.format(args.workdir, args.arch))
-        bin_op.restore()
-        return
+
     if args.evaluate:
+        if args.binarize:
+            bin_op.binarization()
+            save_checkpoint(model.state_dict(), False, filename='{}/{}_bin_'.format(args.workdir, args.arch))
+            bin_op.restore()
         # bin_op.binarization()
         # save_checkpoint(model.state_dict(), False, 'vgg_binarized')
         # bin_op.restore()
