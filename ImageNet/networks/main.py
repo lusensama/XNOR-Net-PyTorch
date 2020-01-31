@@ -67,6 +67,8 @@ parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
 parser.add_argument('--workdir', action='store', default=None,
                     help='the path to store everything')
+parser.add_argument('--binarize', default=False, action='store_true',
+                    help='produce binarized model')
 
 best_prec1 = 0
 
@@ -264,6 +266,11 @@ def main():
     global bin_op
     bin_op = util.BinOp(model)
 
+    if args.binarize:
+        bin_op.binarization()
+        save_checkpoint(model.state_dict(), False, filename='{}/{}_bin_'.format(args.workdir, args.arch))
+        bin_op.restore()
+        return
     if args.evaluate:
         # bin_op.binarization()
         # save_checkpoint(model.state_dict(), False, 'vgg_binarized')
