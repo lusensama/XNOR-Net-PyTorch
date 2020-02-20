@@ -264,22 +264,22 @@ def vgg15_bn_XNOR(pretrained=False, **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = VGG15_bn_xnor(**kwargs)
-    if pretrained:
-        model_path = 'vgg15_gpu.pth'
-        # model_path = 'alexnet_XNOR_cpu.pth'
-        pretrained_model = torch.load(model_path)
-        # from collections import OrderedDict
-        # new_state_dict = OrderedDict()
-        # for k, v in pretrained_model.items():
-        #     name = k.replace(".module", "")  # remove `module.`
-        #     new_state_dict[name] = v
-        # load params
-
-        # model.load_state_dict(pretrained_model, strict=True)
-        model.features = torch.nn.DataParallel(model.features)
-        model.cuda()
-        # torch.save(model.state_dict(), 'vgg15_gpu.pth')
-        model.load_state_dict(pretrained_model, strict=True)
+    # if pretrained:
+    #     model_path = 'vgg15_gpu.pth'
+    #     # model_path = 'alexnet_XNOR_cpu.pth'
+    #     pretrained_model = torch.load(model_path)
+    #     # from collections import OrderedDict
+    #     # new_state_dict = OrderedDict()
+    #     # for k, v in pretrained_model.items():
+    #     #     name = k.replace(".module", "")  # remove `module.`
+    #     #     new_state_dict[name] = v
+    #     # load params
+    #
+    #     # model.load_state_dict(pretrained_model, strict=True)
+    #     model.features = torch.nn.DataParallel(model.features)
+    #     model.cuda()
+    #     # torch.save(model.state_dict(), 'vgg15_gpu.pth')
+    #     model.load_state_dict(pretrained_model, strict=True)
     return model
 
 def vgg_net(pretrained=False, **kwargs):
