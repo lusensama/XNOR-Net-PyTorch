@@ -109,6 +109,7 @@ def main():
     # else:
     # model = torch.nn.DataParallel(model).cuda()
     model.cuda()
+    model.features = torch.nn.DataParallel(model.features)
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
     # optimizer = torch.optim.SGD(model.parameters(), args.lr,
