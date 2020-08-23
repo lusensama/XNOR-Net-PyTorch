@@ -142,7 +142,8 @@ def main():
     #         # model.features = torch.nn.DataParallel(model.features)
     try:
         args.start_epoch = checkpoint['epoch']
-        best_prec1 = checkpoint['best_acc1']
+        if args.pretrained:
+            best_prec1 = 0
         model = torch.nn.DataParallel(model)
         model.load_state_dict(checkpoint['state_dict'])
     except KeyError:
@@ -607,7 +608,7 @@ class AverageMeter(object):
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     lr = args.lr
-    update_list = [120, 200, 240, 280]
+    update_list = [120, 200, 230, 260, 290]
     print ('Learning rate:', lr)
     # for param_group in optimizer.param_groups:
     #     param_group['lr'] = lr
