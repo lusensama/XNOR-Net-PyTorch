@@ -268,6 +268,7 @@ def main():
 
     # define the binarization operator
     global bin_op
+
     bin_op = util.BinOp(model)
 
 
