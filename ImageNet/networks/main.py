@@ -99,6 +99,9 @@ def main():
     elif args.arch=='vgg15ab':
         model = model_list.vgg15ab(pretrained=args.pretrained)
         input_size = 224
+    elif args.arch=='sq':
+        model = model_list.squeezenet1_1()
+        input_size = 224
     else:
         raise Exception('Model not supported yet')
 
@@ -109,7 +112,7 @@ def main():
     # else:
     # model = torch.nn.DataParallel(model).cuda()
     model.cuda()
-    model.features = torch.nn.DataParallel(model.features)
+    # model.features = torch.nn.DataParallel(model.features)
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
     # optimizer = torch.optim.SGD(model.parameters(), args.lr,
@@ -139,8 +142,8 @@ def main():
     #         # model.features = torch.nn.DataParallel(model.features)
     try:
         args.start_epoch = checkpoint['epoch']
-        best_prec1 = checkpoint['best_prec1']
-
+        best_prec1 = checkpoint['best_acc1']
+        model = torch.nn.DataParallel(model)
         model.load_state_dict(checkpoint['state_dict'])
     except KeyError:
         model.load_state_dict(checkpoint)

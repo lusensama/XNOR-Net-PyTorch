@@ -58,7 +58,7 @@ class BinOp():
                     tmp = m.weight.data.clone()
                     self.saved_params.append(tmp)
                     self.target_modules.append(m.weight)
-        print('bin_range is {}, count_targets is {}, index is {}'.format(self.bin_range, count_targets, index))
+        # print('bin_range is {}, count_targets is {}, index is {}'.format(self.bin_range, count_targets, index))
 
     def binarization(self):
         self.meancenterConvParams()
